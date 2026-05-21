@@ -1,0 +1,6 @@
+.td-truncate {
+  max-width: 300px;       /* define o limite */
+  white-space: nowrap;    /* não quebra linha */
+  overflow: hidden;       /* esconde o excesso */
+  text-overflow: ellipsis; /* bota as "..." no final */
+}
