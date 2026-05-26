@@ -1,0 +1,127 @@
+{% extends "bootstrap.html" %}
+{% block title %}Meu perfil — to-be list{% endblock %}
+{% include 'navbar.html' %}
+
+{% block content %}
+<div class="container py-4 mt-5" style="max-width: 720px;">
+  {# Cabeçalho com avatar #}
+  <div class="d-flex align-items-center gap-3 mb-4">
+    {% set iniciais = (current_user.user[:2] if current_user.user else 'SU')|upper %}
+    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold"
+         style="width:64px; height:64px; font-size:22px;">
+      {{ iniciais }}
+    </div>
+    <div>
+      <h4 class="mb-0">{{ current_user.user }}</h4>
+      <div class="text-muted small">{{ current_user.telefone or 'sem telefone' }}</div>
+    </div>
+  </div>
+
+  {# Seção: Notificações WhatsApp #}
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-1">Notificações</h5>
+      <p class="text-muted small mb-3">Como você quer ser avisado das tarefas pendentes.</p>
+
+      <form method="post" action="{{ url_for('user.profile_user') }}">
+        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
+          <div>
+            <label class="form-check-label fw-medium" for="zap_enabled">
+              Receber pendentes no WhatsApp
+            </label>
+            <div class="text-muted small">Resumo diário às 9h no número cadastrado.</div>
+          </div>
+          <input class="form-check-input ms-3" type="checkbox" role="switch"
+                 id="zap_enabled" name="zap_enabled"
+                 style="width:42px; height:22px; flex-shrink:0;"
+                 {% if current_user.zap_enabled %}checked{% endif %}
+                 onchange="this.form.submit()">
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# Seção: Informações da conta #}
+  <div class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-1">Informações da conta</h5>
+      <p class="text-muted small mb-3">Atualize seu usuário, telefone e senha.</p>
+
+      <form method="post" action="{{ url_for('user.profile_user') }}">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="p-nome" class="form-label small">Nome de usuário</label>
+            <input type="text" class="form-control" id="p-nome" name="nome"
+                   value="{{ current_user.user }}" required>
+          </div>
+          <div class="col-md-6">
+            <label for="p-tel" class="form-label small">Telefone</label>
+            <input type="tel" class="form-control" id="p-tel" name="telefone"
+                   value="{{ current_user.telefone or '' }}"
+                   pattern="^\+55 \d{2} \d{5}-\d{4}$">
+          </div>
+          <div class="col-md-6">
+            <label for="p-senha" class="form-label small">Nova senha</label>
+            <input type="password" class="form-control" id="p-senha" name="senha"
+                   placeholder="deixe em branco para manter" minlength="8">
+          </div>
+          <div class="col-md-6">
+            <label for="p-senha2" class="form-label small">Confirmar nova senha</label>
+            <input type="password" class="form-control" id="p-senha2" name="senha_confirm"
+                   placeholder="••••••••">
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <a href="{{ url_for('tarefas.home') }}" class="btn btn-link">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Salvar alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# Seção: Zona de perigo #}
+  <div class="card border-danger shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title text-danger mb-1">Zona de perigo</h5>
+      <p class="text-muted small mb-3">Esta ação é permanente. Suas tarefas serão removidas.</p>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-medium">Excluir minha conta</div>
+          <div class="text-muted small">Você precisará confirmar antes de excluir.</div>
+        </div>
+        <button type="button" class="btn btn-outline-danger"
+                data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+          Excluir conta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Modal: confirmar exclusão #}
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{{ url_for('user.profile_user') }}">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Excluir conta?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Esta ação <strong>não pode ser desfeita</strong>. Todas as suas tarefas serão apagadas.</p>
+          <label for="confirm" class="form-label small">
+            Digite <code>EXCLUIR</code> para confirmar:
+          </label>
+          <input type="text" class="form-control" id="confirm" name="confirm"
+                 pattern="EXCLUIR" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger">Excluir definitivamente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

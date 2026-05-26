@@ -1,0 +1,56 @@
+{% extends 'bootstrap.html' %}
+
+{% block title %} Registre-se {% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-primary" role="alert">
+      {{message}}
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end ">
+    <a href="{{ url_for('auth.login') }}" class="btn btn-primary m-4"> Login </a>
+</div>
+
+<div class="container py-5 d-flex justify-content-center">
+    
+    <div class="card p-4 shadow" style="width: 400px;">
+        
+        <h2 class="text-center mb-4">Cadastro</h2>
+
+        <form method="POST">
+
+            <div class="mb-3">
+                <label class="form-label">Nome</label>
+                <input type="text" name="nome" class="form-control">
+            </div>
+
+
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" name="senha" class="form-control">
+            </div>
+
+            
+            <div class="mb-3">
+                <label class="form-label">Número de telefone</label>
+                <input type="tel" name="telefone" class="form-control">
+                <div id="emailHelp" class="form-text">Digite o número em formato: +55(dd)9-9999-9999.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Cadastrar
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}
