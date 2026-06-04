@@ -19,6 +19,7 @@ from flask_login import (
 from pwdlib import PasswordHash
 from models.models import User
 from sqlalchemy import select
+from utils import validation_number
 
 
 password_hash = PasswordHash.recommended()
@@ -33,9 +34,11 @@ def register():
             
             nome = request.form.get("nome")
             senha = request.form.get("senha")
+            tel = request.form.get("telefone")
+            senha_raw = password_hash.hash(senha)
 
             if not nome or not senha:
-                flash("Campos obrigatórios")
+                flash("Campos obrigatórios (Nome e senha)")
                 return redirect(url_for('auth.register'))
                
             elif len(nome) < 5 or len(senha) < 5:
@@ -46,15 +49,23 @@ def register():
                 flash("Usuário já existe, patrão.")
                 return redirect(url_for('auth.register'))
             
-            senha_raw = password_hash.hash(senha)
+            validation = validation_number(tel)
+
+            if validation is False:
+                flash("Número inválido")
+                return redirect(url_for('auth.register'))
+            
             user = User(
                 user = nome,
-                password = senha_raw
+                password = senha_raw,
+                telefone = validation['number_f']
             )
-            
+                
             session.add(user)
             session.commit()
             session.refresh(user)
+            flash("Conta criada com sucesso")
+
             
             return redirect(url_for('auth.register'))
 
@@ -87,7 +98,7 @@ def login():
             else:
                 flash("Login feito com sucesso !")
                 login_user(user)
-                return redirect(url_for('auth.current'))
+                return redirect(url_for('tarefas.home'))
 
     return render_template('login.html')
 

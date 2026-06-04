@@ -1,0 +1,180 @@
+{% extends 'bootstrap.html' %}
+
+{% block title %} Toodo List {% endblock %}
+
+
+{% block content %} 
+
+{% include 'navbar.html' %}
+<br>
+<br>
+
+
+
+<div class="container-fluid text-center text-bg-dark p-3">
+  
+  <div class="row align-items-center justify-content-center">
+    <div class="col text-center">
+      <h4>Total de tarefas<span class="badge text-bg-primary ms-2">{{ total_tarefas }}</span></h4>
+    </div>
+    <div class="col">
+      <h4>Concluídas<span class="badge text-bg-success ms-2">{{ concluida }}</span></h4>
+    </div>
+    <div class="col">
+      <h4>Pendentes<span class="badge text-bg-danger ms-2"> {{ pendente }}</span></h4>
+    </div>
+    <div class="col">
+      <h4>% de conclusão <span class="badge text-bg-dark ms-2"> {{ percent }}</span></h4>
+      
+      <div class="progress" 
+          role="progressbar" 
+          aria-label="Animated striped example" 
+          aria-valuenow= '{{ percent_value }}'
+          aria-valuemin="0" 
+          aria-valuemax="100">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: {{ percent_value }}%"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<form class=" w-25 ms-3" method="post">
+  
+    <div class="mb-3">
+    <label for="nome_tarefa" class="form-label ">Tarefa</label>
+    <input type="text" class="form-control" id="tarefa1"  name="tarefa">
+  </div>
+  
+  <div class="mb-3">
+    <label for="descricao" class="form-label">Descrição</label>
+    <input type="text" class="form-control" id="descricao1" name="descricao">
+  </div>
+
+  <button type="submit" class="btn btn-primary shadow-lg">Enviar tarefa</button>
+</form>
+<br>
+
+<div class="btn-group text-bg-dark mb-1" role="group" aria-label="Basic outlined example">
+  <a class="btn btn-outline-secondary btn-sm" href="/?filtro=all" role="button">Todas tarefas</a>
+  <a class="btn btn-outline-success btn-sm" href="?filtro=concluidas" role="button">Concluídas</a>
+  <a class="btn btn-outline-warning btn-sm" href="?filtro=pendentes" role="button">Pendentes</a>
+</div>
+
+<table class="table table-striped table-sm">
+  <thead>
+    <tr>
+      <th class="bg-warning"> #</th>
+        {% for col in colunas %}
+            <th class="bg-black text-white">{{col}}</th>
+            {% endfor %} 
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in database %}
+    <tr>
+      <th scope="row">{{loop.index0}}</th>
+      <td>{{i.tarefa}}</td>
+      <td class="td-truncate">{{i.descricao_obj}}</td>
+      <td>
+          {% if i.status == 'pendente' %}
+              <span class="badge bg-warning text-dark">
+                  {{ i.status }}
+              </span>
+
+          {% elif i.status == 'concluido' %}
+              <span class="badge bg-success">
+                  {{ i.status }}
+              </span>
+          
+          {% endif %}
+      </td>
+      <td>{{i.created_at.strftime("%d/%m/%Y %H:%M")}}</td>
+      <td>
+        <form method="post" action="{{ url_for('tarefas.alterar_status', indice=i.id) }}">
+          <button class="btn btn-success btn-sm" type="submit">
+            Concluir
+          </button>
+        </form>
+      </td>
+      
+      <td>
+          <button class="btn btn btn-warning btn-sm " type="button" data-bs-toggle="modal" data-bs-target="#modalEditar{{ i.id }}">
+            Editar
+          </button>
+      </td> 
+
+      <td>
+        <form method="post" action="{{ url_for('tarefas.excluir_tarefa', indice=i.id) }}">
+          <button class="btn btn-outline-danger btn-sm" type="submit">
+            Excluir
+          </button>
+        </form>
+      </td>
+
+     
+    
+       <!-- MODAL DE EDITAR -->
+    <div class="modal fade" id="modalEditar{{ i.id }}" tabindex="-1" >
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Editar tarefa</h5>
+
+            <button 
+              type="button" 
+              class="btn-close" 
+              data-bs-dismiss="modal">
+            </button>
+          </div>
+
+          <form method="POST" action="{{ url_for('tarefas.editar_tarefa', indice=i.id) }}">
+            <div class="modal-body">
+
+              <div class="mb-3">
+                <label class="form-label">tarefa</label>
+                <input 
+                  type="text"
+                  name="tarefa"
+                  class="form-control"
+                  value="{{ i.tarefa }}">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Descrição</label>
+                <textarea 
+                  name="descricao"
+                  class="form-control">{{ i.descricao_obj }}</textarea>
+              </div>
+
+            </div>
+              <button type="submit" class="btn btn-success">
+                Salvar alterações
+  
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  
+
+  
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-warning">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+{% endblock %}

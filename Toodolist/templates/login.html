@@ -1,45 +1,54 @@
-{% extends 'bootstrap.html' %}
-
-{% block title %} Registre-se {% endblock %}
+{% extends "bootstrap.html" %}
+{% block title %}Entrar — to-be list{% endblock %}
 
 {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5 col-xl-4">
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-primary" role="alert">
-      {{message}}
-    </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+      <div class="text-center mb-4">
+        <h1 class="h3 fw-semibold mb-1">to-be list</h1>
+        <p class="text-muted small mb-0">Entre para continuar suas tarefas.</p>
+      </div>
 
-<div class="container py-5 d-flex justify-content-center">
-    
-    <div class="card p-4 shadow" style="width: 400px;">
-        
-        <h2 class="text-center mb-4">Login</h2>
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h4 class="card-title mb-3">Bem-vindo de volta</h4>
 
-        <form method="POST">
+          <form method="post" action="{{ url_for('auth.login') }}">
+            {# se você usa Flask-WTF, descomente abaixo #}
+            {# {{ csrf_token() }} ou {{ form.hidden_tag() }} #}
 
-            <div class="mb-3">
-                <label class="form-label">Nome</label>
-                <input type="text" name="nome" class="form-control">
+            <div class="form-floating mb-3">
+              <input type="text" class="form-control" id="nome" name="nome"
+                     placeholder="usuario" required autofocus>
+              <label for="nome">Nome de usuário</label>
             </div>
 
-
-            <div class="mb-3">
-                <label class="form-label">Senha</label>
-                <input type="password" name="senha" class="form-control">
+            <div class="form-floating mb-3">
+              <input type="password" class="form-control" id="senha" name="senha"
+                     placeholder="senha" required>
+              <label for="senha">Senha</label>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">
-                Cadastrar
-            </button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                <label class="form-check-label small" for="remember">Lembrar de mim</label>
+              </div>
+              <a href="#" class="link-primary small">Esqueci a senha</a>
+            </div>
 
-        </form>
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+          </form>
+        </div>
+      </div>
 
+      <p class="text-center text-muted small mt-3">
+        Ainda não tem conta?
+        <a href="{{ url_for('auth.register') }}" class="link-primary fw-semibold">Registre-se</a>
+      </p>
     </div>
-
+  </div>
 </div>
 {% endblock %}

@@ -1,5 +1,5 @@
 from database.conf import Base
-from sqlalchemy import String, VARCHAR, DATETIME
+from sqlalchemy import String, VARCHAR, DATETIME, Numeric
 from typing import List, Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
@@ -14,6 +14,8 @@ class User(UserMixin,Base):
     user: Mapped[str] = mapped_column(String(30))
     password: Mapped[str] = mapped_column(VARCHAR(100), nullable=False)
     tarefas: Mapped[List["Tarefas"]] = relationship(back_populates='responsavel')
+    telefone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    # receber_mensagem = Mapped[Optional[bool]] = mapped_column(bool, nullable=True)
 
 class Tarefas(UserMixin,Base):
     __tablename__ = "tarefas"

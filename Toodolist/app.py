@@ -1,6 +1,7 @@
 from flask import Flask, current_app
 from routes.tarefas import tarefas_bp
 from routes.auth import auth
+from routes.user import user_bp
 from sqlalchemy import create_engine
 from database.conf import Base
 from sqlalchemy.orm import sessionmaker
@@ -15,6 +16,7 @@ def create_app(conf):
     
     app.register_blueprint(tarefas_bp)
     app.register_blueprint(auth)
+    app.register_blueprint(user_bp)
     
     engine = create_engine(conf)
     Session = sessionmaker(bind=engine) 
@@ -23,6 +25,7 @@ def create_app(conf):
     #Configuração flask login
     login_manager = LoginManager()
     login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
     
     @login_manager.user_loader
     def load_user(user_id):

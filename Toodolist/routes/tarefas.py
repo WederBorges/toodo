@@ -13,8 +13,10 @@ tarefas_bp = Blueprint('tarefas', __name__, url_prefix='/')
 @tarefas_bp.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    print(current_user.user)
+
+    
     with current_app.Session() as session:
+
 
         colunas = [
             'Nome', 
@@ -75,7 +77,6 @@ def home():
 
 
             return redirect(url_for('tarefas.home'))
-        
 
     return render_template('index.html',
                             
