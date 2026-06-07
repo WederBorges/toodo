@@ -13,7 +13,7 @@
     </div>
     <div>
       <h4 class="mb-0">{{ current_user.user }}</h4>
-      <div class="text-muted small">{{ current_user.telefone or 'sem telefone' }}</div>
+      <div class="text-muted small">{{ current_user.email or 'sem email' }}</div>
     </div>
   </div>
 
@@ -42,10 +42,19 @@
   </div>
 
   {# Seção: Informações da conta #}
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-primary" role="alert">
+            {{message}}
+          </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <h5 class="card-title mb-1">Informações da conta</h5>
-      <p class="text-muted small mb-3">Atualize seu usuário, telefone e senha.</p>
+      <p class="text-muted small mb-3">Atualize seu usuário, email e senha.</p>
 
       <form method="post" action="{{ url_for('user.profile_user') }}">
         <div class="row g-3">
@@ -55,10 +64,9 @@
                    value="{{ current_user.user }}" required>
           </div>
           <div class="col-md-6">
-            <label for="p-tel" class="form-label small">Telefone</label>
-            <input type="tel" class="form-control" id="p-tel" name="telefone"
-                   value="{{ current_user.telefone or '' }}"
-                   pattern="^\+55 \d{2} \d{5}-\d{4}$">
+            <label for="p-email" class="form-label small">Email</label>
+            <input type="email" class="form-control" id="p-email" name="email"
+                   value="{{ current_user.email or '' }}">
           </div>
           <div class="col-md-6">
             <label for="p-senha" class="form-label small">Nova senha</label>

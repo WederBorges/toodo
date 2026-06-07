@@ -17,35 +17,30 @@ def home():
     
     with current_app.Session() as session:
 
-
-        colunas = [
-            'Nome', 
-            "Descrição", 
-            "Status", 
-            "Data Criação",
-            "Concluir", 
-            "Excluir", 
-            "Editar",
-            ]
         
         filtro = request.args.get("filtro")
-        database = session.query(Tarefas).where(Tarefas.responsavel_id == current_user.id).all()
+        query = (select(Tarefas)).where(Tarefas.responsavel_id == current_user.id).order_by(Tarefas.status.desc())
+        database = session.scalars(query).all()
+        print(database)
         total_tarefas = len(database)
+        
         pendente = len(session.scalars(
             select(Tarefas)
             .where(and_(
                 Tarefas.status=="pendente", 
                 Tarefas.responsavel_id == current_user.id))).all())
+        
         concluida = len(session.scalars(
             select(Tarefas)
             .where(and_(
                 Tarefas.status=="concluido", 
                 Tarefas.responsavel_id == current_user.id))).all())
+        
         percent = concluida/total_tarefas if database else 0
         agora = datetime.now()
 
         if filtro == 'all':
-            database = session.query(Tarefas).where(Tarefas.responsavel_id == current_user.id).all()
+            database
 
         elif filtro == 'concluidas':
             database = session.scalars(
@@ -81,7 +76,6 @@ def home():
     return render_template('index.html',
                             
                             database=database, 
-                            colunas=colunas, 
                             total_tarefas=total_tarefas,
                             pendente=pendente,
                             concluida=concluida,

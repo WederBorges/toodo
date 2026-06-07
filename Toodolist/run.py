@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     scheduler = BackgroundScheduler()
 
-    job = scheduler.add_job(enviar_mensagem, 'interval',  minutes=1)
+    job = scheduler.add_job(enviar_mensagem, 'cron',  hour=8, minute=1)
     scheduler.start() 
 
 
