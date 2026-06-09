@@ -3,9 +3,10 @@ from flask_login import current_user
 from models.models import User
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from pwdlib import PasswordHash
 user_bp = Blueprint('user', __name__, url_prefix='/profile')
 
-
+password_hash = PasswordHash.recommended()
 @user_bp.route('/user/', methods=['GET', 'POST'])
 def profile_user():
 
@@ -35,6 +36,16 @@ def profile_user():
                 else:
                     us_atual.email = email
                     flash("email alterado com sucesso fiote.")
+            if senha and senhaconfirma:
+                if senha != senhaconfirma:
+                    flash("Senhas divergentes")
+                    return redirect(url_for("user.profile_user"))
+                elif len(senha) < 8:
+                    flash("Senha com poucos caracteres")
+                else:
+                    flash("Senhas alteradas com sucesso")
+                    senha_raw = password_hash.hash(senha)
+                    us_atual.password = senha_raw
                    
             session.commit()
             session.refresh(us_atual)
