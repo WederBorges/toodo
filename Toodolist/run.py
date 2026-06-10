@@ -27,7 +27,10 @@ def enviar_mensagem():
         with current_app.Session() as session:
             stmt = (
                 select(func.count(Tarefas.status), User.user, User.email)
-                .filter(and_(User.email.isnot(None), Tarefas.status=='pendente'))
+                .filter(and_(
+                    User.email.isnot(None), 
+                    Tarefas.status=='pendente',
+                    User.receber_mensagem == True))
                 .join(Tarefas.responsavel)
                 .group_by(User.id)
                 
@@ -68,7 +71,7 @@ if __name__ == '__main__':
 
     scheduler = BackgroundScheduler()
 
-    job = scheduler.add_job(enviar_mensagem, 'cron', hour= 8, minute=30)
+    job = scheduler.add_job(enviar_mensagem, 'cron', hour=8 ,minute=30)
     scheduler.start() 
 
 

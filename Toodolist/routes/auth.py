@@ -34,9 +34,9 @@ def register():
             
             nome = request.form.get("nome")
             senha = request.form.get("senha")
-            tel = request.form.get("telefone")
+            email = request.form.get("email")
             senha_raw = password_hash.hash(senha)
-
+            print(email)
             if not nome or not senha:
                 flash("Campos obrigatórios (Nome e senha)")
                 return redirect(url_for('auth.register'))
@@ -49,18 +49,17 @@ def register():
                 flash("Usuário já existe, patrão.")
                 return redirect(url_for('auth.register'))
             
-            validation = validation_number(tel)
+    
 
-            if validation is False:
-                flash("Número inválido")
-                return redirect(url_for('auth.register'))
-            
+            if not email:
+                email = None #none em python = null em banco
             user = User(
                 user = nome,
                 password = senha_raw,
-                telefone = validation['number_f']
+                email = email
             )
-                
+            print(email)
+
             session.add(user)
             session.commit()
             session.refresh(user)
