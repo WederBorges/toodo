@@ -66,11 +66,11 @@ def enable_email():
             if enable_email == None:
                 us_atual.receber_mensagem = False
                 session.commit()
-                flash("Você agora receberá emails de notificação")
+                flash("Você não receberá emails de notificação")
                 return redirect(url_for('user.profile_user'))
             if enable_email == 'on':
                 us_atual.receber_mensagem = True
                 session.commit()
-                flash("Você não receberá emails de notificação")
+                flash("Você agora receberá emails de notificação")
                 return redirect(url_for('user.profile_user'))
                 
