@@ -17,24 +17,24 @@
     </div>
   </div>
 
-  {# Seção: Notificações WhatsApp #}
+  {# Seção: Notificações Email #}
   <div class="card mb-3 shadow-sm">
     <div class="card-body">
       <h5 class="card-title mb-1">Notificações</h5>
       <p class="text-muted small mb-3">Como você quer ser avisado das tarefas pendentes.</p>
 
-      <form method="post" action="{{ url_for('user.profile_user') }}">
+      <form method="post" action="{{ url_for('user.enable_email') }}">
         <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
           <div>
             <label class="form-check-label fw-medium" for="zap_enabled">
-              Receber pendentes no WhatsApp
+              Receber tarefas pendentes no Email
             </label>
-            <div class="text-muted small">Resumo diário às 9h no número cadastrado.</div>
+            <div class="text-muted small">Resumo diário às 9h no email cadastrado.</div>
           </div>
           <input class="form-check-input ms-3" type="checkbox" role="switch"
-                 id="zap_enabled" name="zap_enabled"
+                 id="zap_enabled" name="email_enabled"
                  style="width:42px; height:22px; flex-shrink:0;"
-                 {% if current_user.zap_enabled %}checked{% endif %}
+                 {% if current_user.receber_mensagem %}checked{% endif %}
                  onchange="this.form.submit()">
         </div>
       </form>

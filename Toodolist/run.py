@@ -34,31 +34,32 @@ def enviar_mensagem():
             )
             results = session.execute(stmt).all()
 
+    with SMTP(SMTP_SERVER, SMTP_PORT) as server:
+                    
+        server.starttls()
+        server.login(USERNAME, PASSWORD)
+            
+        for n in results:
+            qtd = n[0]
+            nome = n[1]
+            email = n[2]
 
-    for n in results:
-        qtd = n[0]
-        nome = n[1]
-        email = n[2]
+            if not email:
+                continue
+            
+            sender_email = os.getenv('EMAIL_TOODO')
+            receiver_email = email
+            subject = "Lembrancinhas do Toodo"
+            body = f"Olá {nome}. Você tem {qtd} tarefas em em aberto"
 
-        if not email:
-            continue
-        
-        sender_email = os.getenv('EMAIL_TOODO')
-        receiver_email = email
-        subject = "Lembrancinhas do Toodo"
-        body = f"Olá {nome}. Você tem {qtd} tarefas em em aberto"
+            message = MIMEText(body, 'plain')
+            message['Subject'] = subject
+            message['From'] = sender_email
+            message['To'] = receiver_email
+            print(f"Enviando para: {email}")
 
-        message = MIMEText(body, 'plain')
-        message['Subject'] = subject
-        message['From'] = sender_email
-        message['To'] = receiver_email
-
-        with SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(USERNAME, PASSWORD)
             server.sendmail(sender_email, receiver_email, message.as_string())
-        
-        print(f"Enviando para: {email}")  # ← adiciona isso
+                
         
         
 
@@ -67,7 +68,7 @@ if __name__ == '__main__':
 
     scheduler = BackgroundScheduler()
 
-    job = scheduler.add_job(enviar_mensagem, 'cron', hour= 8 minute=30)
+    job = scheduler.add_job(enviar_mensagem, 'cron', hour= 8, minute=30)
     scheduler.start() 
 
 

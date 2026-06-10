@@ -16,7 +16,8 @@ dependencies = [
     "schedule (>=1.2.2,<2.0.0)",
     "phonenumbers (>=9.0.31,<10.0.0)",
     "apscheduler (>=3.11.2,<4.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)"
+    "dotenv (>=0.9.9,<0.10.0)",
+    "git-filter-repo (>=2.47.0,<3.0.0)"
 ]
 
 

@@ -7,6 +7,7 @@ from pwdlib import PasswordHash
 user_bp = Blueprint('user', __name__, url_prefix='/profile')
 
 password_hash = PasswordHash.recommended()
+
 @user_bp.route('/user/', methods=['GET', 'POST'])
 def profile_user():
 
@@ -18,7 +19,8 @@ def profile_user():
             email = request.form.get("email")
             senha = request.form.get("senha")
             senhaconfirma = request.form.get("senha_confirm")
-            print(nome_user, email, senha)
+            email_enabled = request.form.get("email_enabled")
+            print(email_enabled)
             name_exists = session.scalar(select(User).where(User.user == nome_user))
             email_exists = session.scalar(select(User).where(User.email == email))
             
@@ -52,3 +54,23 @@ def profile_user():
             return redirect(url_for('user.profile_user'))
 
     return render_template('/profile.html')
+
+@user_bp.route('/user-enable-email', methods=['POST'])
+def enable_email():
+    
+    with current_app.Session() as session:
+        us_atual = session.scalar(select(User).where(User.id == current_user.id))
+        if request.method == 'POST':
+            enable_email = request.form.get('email_enabled')
+            print(enable_email)
+            if enable_email == None:
+                us_atual.receber_mensagem = False
+                session.commit()
+                flash("Você agora receberá emails de notificação")
+                return redirect(url_for('user.profile_user'))
+            if enable_email == 'on':
+                us_atual.receber_mensagem = True
+                session.commit()
+                flash("Você não receberá emails de notificação")
+                return redirect(url_for('user.profile_user'))
+                
