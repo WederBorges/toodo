@@ -7,12 +7,19 @@ from database.conf import Base
 from sqlalchemy.orm import sessionmaker
 from flask_login import LoginManager
 from models.models import User
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+SECRET_KEY = os.getenv('SECRET_KEY_')
 
 def create_app(conf):
     
 
     app = Flask(__name__)
-    app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+    app.secret_key = SECRET_KEY
     
     app.register_blueprint(tarefas_bp)
     app.register_blueprint(auth)
