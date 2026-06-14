@@ -1,28 +1,13 @@
-from app import create_app
-from database.conf import banco_prod
-from apscheduler.schedulers.background import BackgroundScheduler
-from flask import current_app
-from dotenv import load_dotenv
+from apscheduler.schedulers.blocking import BlockingScheduler
 import os
 from sqlalchemy import select, func, and_
 from models.models import User,Tarefas
-
-from smtplib import SMTP
 from email.mime.text import MIMEText
-from services import connection_bd
+from services import connection_bd, conection_stmp
 
-load_dotenv()
-
-SMTP_SERVER = "smtp.gmail.com"  # Replace with your SMTP server
-SMTP_PORT = 587  # Use 465 for SSL or 587 for TLS
-USERNAME = os.getenv('EMAIL_TOODO')  # Your email login
-PASSWORD = os.getenv('PASSWORD_TOODO') # Your email password
-
-
-
-app = create_app(banco_prod.DATABASE_SQLALCHEMY_URI)
 
 def enviar_mensagem():
+    
     with connection_bd() as session:
         stmt = (
                 select(func.count(Tarefas.status), User.user, User.email)
@@ -36,11 +21,9 @@ def enviar_mensagem():
             )
         results = session.execute(stmt).all()
 
-    with SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                    
-        server.starttls()
-        server.login(USERNAME, PASSWORD)
-            
+    
+    with conection_stmp() as server:
+                
         for n in results:
             qtd = n[0]
             nome = n[1]
@@ -62,9 +45,8 @@ def enviar_mensagem():
 
             server.sendmail(sender_email, receiver_email, message.as_string())
                 
-        
-        
-scheduler = BackgroundScheduler()
-
-job = scheduler.add_job(enviar_mensagem, 'cron', hour=8 ,minute=30)
+    
+scheduler = BlockingScheduler()
+print("Rodei")
+job = scheduler.add_job(enviar_mensagem, 'cron', hour=8, minute=30)
 scheduler.start() 

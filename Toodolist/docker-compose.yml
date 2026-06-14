@@ -1,0 +1,14 @@
+
+services: # Onde os contêineres são declarados
+  run_flask:
+    build: .
+    ports:
+      - "8000"
+    env_file:
+      - .env
+
+  scheduler:
+    build: .
+    env_file:
+      - .env 
+    command: ["python", "scheduler.py"]
