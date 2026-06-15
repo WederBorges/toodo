@@ -10,6 +10,6 @@ RUN poetry config virtualenvs.create false
 
 RUN poetry install
 
-EXPOSE 8080
+EXPOSE 5000
 
 CMD ["python", "run.py"]
