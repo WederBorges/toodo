@@ -11,6 +11,7 @@ import os
 from dotenv import load_dotenv
 
 
+
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY_')
@@ -26,6 +27,7 @@ def create_app(conf):
     app.register_blueprint(user_bp)
     
     engine = create_engine(conf)
+    os.makedirs("data", exist_ok=True)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine) 
     app.Session = Session
