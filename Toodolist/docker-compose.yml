@@ -5,6 +5,8 @@ services: # Onde os contêineres são declarados
       - "8080:5000"
     env_file:
       - .env
+    volumes:
+      - ./data/:/usr/local/app/data
 
   scheduler:
     build: .

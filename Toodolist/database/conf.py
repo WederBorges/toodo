@@ -5,5 +5,5 @@ class Base(DeclarativeBase):
     ...
 
 class banco_prod():
-    DATABASE_SQLALCHEMY_URI = "sqlite:///toodo.db"
+    DATABASE_SQLALCHEMY_URI = "sqlite:///data/toodo.db"
 
