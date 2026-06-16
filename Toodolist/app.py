@@ -26,6 +26,7 @@ def create_app(conf):
     app.register_blueprint(user_bp)
     
     engine = create_engine(conf)
+    Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine) 
     app.Session = Session
 
