@@ -35,22 +35,29 @@ def register():
             nome = request.form.get("nome")
             senha = request.form.get("senha")
             email = request.form.get("email")
-            senha_raw = password_hash.hash(senha)
-            print(email)
-            if not nome or not senha:
-                flash("Campos obrigatórios (Nome e senha)")
+            if not senha:
+                flash("Digite uma senha.")
+                return redirect(url_for('auth.register'))
+    
+            
+            if not nome:
+                flash("Campo de nome usuário é obrigatorio)")
                 return redirect(url_for('auth.register'))
                
-            elif len(nome) < 5 or len(senha) < 5:
-                flash("Nome ou senha muito com poucos caracteres")
+            elif len(nome) < 5:
+                flash("Nome com menos de 5 caracteres")
                 return redirect(url_for('auth.register'))
-                
+               
+            elif len(senha) < 8:
+                flash("Senha com menos de 8 caracteres")
+                return redirect(url_for('auth.register'))
+
             if session.scalar(select(User).where(User.user == nome)):
-                flash("Usuário já existe, patrão.")
+                flash("Usuário já existe, tente outro nome")
                 return redirect(url_for('auth.register'))
             
     
-
+            senha_raw = password_hash.hash(senha)
             if not email:
                 email = None #none em python = null em banco
             user = User(
@@ -66,7 +73,7 @@ def register():
             flash("Conta criada com sucesso")
 
             
-            return redirect(url_for('auth.register'))
+            return redirect(url_for('auth.login'))
 
     return render_template('register.html')
 
@@ -95,13 +102,14 @@ def login():
                 flash("Senha incorreta")
                 return redirect(url_for('auth.login'))
             else:
-                flash("Login feito com sucesso !")
                 login_user(user)
+                flash("Login feito com sucesso !")
                 return redirect(url_for('tarefas.home'))
 
     return render_template('login.html')
 
 @auth.route('/logout')
 def logout():
+    flash("Sessão finalizada")
     logout_user()
     return redirect(url_for('auth.login'))

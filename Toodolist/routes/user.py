@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, current_app, flash, url_for, redirect
-from flask_login import current_user
+from flask_login import current_user, login_required
 from models.models import User
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -9,6 +9,7 @@ user_bp = Blueprint('user', __name__, url_prefix='/profile')
 password_hash = PasswordHash.recommended()
 
 @user_bp.route('/user/', methods=['GET', 'POST'])
+@login_required
 def profile_user():
 
     if request.method == 'POST':
