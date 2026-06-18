@@ -118,7 +118,7 @@
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form method="post" action="{{ url_for('user.profile_user') }}">
+      <form method="post" action="{{ url_for('user.delete_account') }}">
         <div class="modal-header">
           <h5 class="modal-title text-danger">Excluir conta?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -128,7 +128,7 @@
           <label for="confirm" class="form-label small">
             Digite <code>EXCLUIR</code> para confirmar:
           </label>
-          <input type="text" class="form-control" id="confirm" name="confirm"
+          <input type="text" class="form-control" id="confirm" name="confirmacao"
                  pattern="EXCLUIR" required>
         </div>
         <div class="modal-footer">

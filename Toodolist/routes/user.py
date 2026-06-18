@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, current_app, flash, url_for, redirect
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from models.models import User
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,selectinload
 from sqlalchemy import select
 from pwdlib import PasswordHash
 user_bp = Blueprint('user', __name__, url_prefix='/profile')
@@ -75,3 +75,20 @@ def enable_email():
                 flash("Você agora receberá emails de notificação")
                 return redirect(url_for('user.profile_user'))
                 
+@user_bp.route('/delete-account', methods=['POST'])
+@login_required
+def delete_account():
+    
+    with current_app.Session() as session:
+        us_atual = session.scalar(select(User)
+                                  .options(selectinload(User.tarefas))
+                                  .where(User.id == current_user.id))
+        us_atual.tarefas
+        if request.method == 'POST':
+            confirmacao = request.form.get("confirmacao")
+            if confirmacao == "EXCLUIR":
+                logout_user()
+                session.delete(us_atual)
+                session.commit()
+                flash("Conta deletada com sucesso")
+                return redirect(url_for('auth.register'))

@@ -13,12 +13,17 @@ class User(UserMixin,Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user: Mapped[str] = mapped_column(String(30))
     password: Mapped[str] = mapped_column(VARCHAR(100), nullable=False)
-    tarefas: Mapped[List["Tarefas"]] = relationship(back_populates='responsavel')
     email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     receber_mensagem: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=False)
     #user_ativo: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True) para o próximo estudo
 
-class Tarefas(UserMixin,Base):
+    tarefas: Mapped[List["Tarefas"]] = relationship(
+        "Tarefas",
+        back_populates='responsavel',
+        cascade="all, delete-orphan",
+        passive_deletes=True)
+
+class Tarefas(Base):
     __tablename__ = "tarefas"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -27,5 +32,9 @@ class Tarefas(UserMixin,Base):
     status: Mapped[str] = mapped_column(String(30))
     created_at: Mapped[datetime] = mapped_column(DATETIME())
 
-    responsavel_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_account.id"), nullable=True)
+    responsavel_id: Mapped[Optional[int]] = mapped_column(ForeignKey(
+                                                            "user_account.id", 
+                                                            ondelete="CASCADE", 
+                                                            name="fk_tarefas_responsavel_id"), 
+                                                            nullable=True)
     responsavel: Mapped["User"] = relationship(back_populates="tarefas")
