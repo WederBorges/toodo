@@ -9,7 +9,7 @@ from flask_login import LoginManager
 from models.models import User
 import os
 from dotenv import load_dotenv
-
+from flask_wtf.csrf import CSRFProtect
 
 
 load_dotenv()
@@ -21,11 +21,12 @@ def create_app(conf):
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
-    
+    csrf = CSRFProtect(app)
     app.register_blueprint(tarefas_bp)
     app.register_blueprint(auth)
     app.register_blueprint(user_bp)
     
+
     engine = create_engine(conf)
     os.makedirs("data", exist_ok=True)
     Base.metadata.create_all(engine)
