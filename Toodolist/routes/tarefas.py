@@ -13,17 +13,18 @@ tarefas_bp = Blueprint('tarefas', __name__, url_prefix='/')
 @tarefas_bp.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-
     
     with current_app.Session() as session:
 
-        
         filtro = request.args.get("filtro")
+        busca = request.args.get("q", "").strip()
+        print(busca)
         query = (select(Tarefas)).where(Tarefas.responsavel_id == current_user.id).order_by(Tarefas.status.desc())
         database = session.scalars(query).all()
-        print(database)
         total_tarefas = len(database)
         
+        
+
         pendente = len(session.scalars(
             select(Tarefas)
             .where(and_(
@@ -91,8 +92,11 @@ def alterar_status(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefa.home'))
-        tarefa_db.status = 'concluido'
+            return redirect(url_for('tarefas.home'))
+        if tarefa_db.status == None or tarefa_db.status == 'pendente':
+            tarefa_db.status = 'concluido'
+        else:
+            tarefa_db.status = 'pendente'
         session.commit()
         return redirect(url_for('tarefas.home'))
 
@@ -105,7 +109,7 @@ def excluir_tarefa(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefa.home'))
+            return redirect(url_for('tarefas.home'))
         session.delete(tarefa_db)
         session.commit()
         return redirect(url_for('tarefas.home'))
@@ -119,7 +123,7 @@ def editar_tarefa(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefa.home'))
+            return redirect(url_for('tarefas.home'))
         if request.method == 'POST':
             nome = request.form.get('tarefa')
             descricao = request.form.get('descricao')

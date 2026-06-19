@@ -155,7 +155,9 @@
                     <button type="submit" class="btn btn-sm btn-success">Concluir</button>
                   </form>
                 {% else %}
-                  <button class="btn btn-sm btn-outline-secondary" disabled>—</button>
+                <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}">
+                  <button class="btn btn-sm btn-outline-secondary">Reabrir</button>
+                </form>
                 {% endif %}
 
                 {# Editar (abre modal) #}

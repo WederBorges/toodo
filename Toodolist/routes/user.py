@@ -21,7 +21,6 @@ def profile_user():
             senha = request.form.get("senha")
             senhaconfirma = request.form.get("senha_confirm")
             email_enabled = request.form.get("email_enabled")
-            print(email_enabled)
             name_exists = session.scalar(select(User).where(User.user == nome_user))
             email_exists = session.scalar(select(User).where(User.email == email))
             
