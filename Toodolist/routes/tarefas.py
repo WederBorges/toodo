@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, url_for, redirect, flash
+from flask import Blueprint, render_template, request, url_for, redirect, flash, abort
 from datetime import datetime
 from flask import current_app
 from sqlalchemy.orm import Session
@@ -89,6 +89,9 @@ def alterar_status(indice):
     
     with current_app.Session() as session:
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
+        if not tarefa_db:
+            flash("Tarefa inexistente")
+            return redirect(url_for('tarefa.home'))
         tarefa_db.status = 'concluido'
         session.commit()
         return redirect(url_for('tarefas.home'))
@@ -100,6 +103,9 @@ def excluir_tarefa(indice):
     
     with current_app.Session() as session:
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
+        if not tarefa_db:
+            flash("Tarefa inexistente")
+            return redirect(url_for('tarefa.home'))
         session.delete(tarefa_db)
         session.commit()
         return redirect(url_for('tarefas.home'))
@@ -111,7 +117,9 @@ def editar_tarefa(indice):
     with current_app.Session() as session:
 
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
-
+        if not tarefa_db:
+            flash("Tarefa inexistente")
+            return redirect(url_for('tarefa.home'))
         if request.method == 'POST':
             nome = request.form.get('tarefa')
             descricao = request.form.get('descricao')
