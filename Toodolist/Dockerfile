@@ -12,4 +12,4 @@ RUN poetry install
 
 EXPOSE 8080
 
-CMD ["python", "run.py"]
+CMD ["gunicorn", "run:app --bind 0.0.0.0:$PORT"]
