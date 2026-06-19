@@ -6,9 +6,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+producao = False
 
+database_uri = os.getenv(
+    "DATABASE_URL",
+    banco_prod.DATABASE_SQLALCHEMY_URI)
 
-app = create_app(banco_prod.DATABASE_SQLALCHEMY_URI)
+app = create_app(database_uri)
 
 if __name__ == '__main__':
 
