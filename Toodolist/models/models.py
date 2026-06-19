@@ -1,5 +1,5 @@
 from database.conf import Base
-from sqlalchemy import String, VARCHAR, DATETIME, Boolean
+from sqlalchemy import String, VARCHAR, DATETIME, Boolean, UniqueConstraint
 from typing import List, Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship
@@ -11,7 +11,7 @@ class User(UserMixin,Base):
     __tablename__ = "user_account"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user: Mapped[str] = mapped_column(String(30))
+    user: Mapped[str] = mapped_column(String(30),nullable=False)
     password: Mapped[str] = mapped_column(VARCHAR(100), nullable=False)
     email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     receber_mensagem: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True, default=False)
@@ -22,6 +22,11 @@ class User(UserMixin,Base):
         back_populates='responsavel',
         cascade="all, delete-orphan",
         passive_deletes=True)
+    
+    __table_args__ = (
+        UniqueConstraint("user", name="uq_user_account_user"),
+        UniqueConstraint("email", name="uq_user_account_email")
+    )
 
 class Tarefas(Base):
     __tablename__ = "tarefas"
@@ -36,5 +41,5 @@ class Tarefas(Base):
                                                             "user_account.id", 
                                                             ondelete="CASCADE", 
                                                             name="fk_tarefas_responsavel_id"), 
-                                                            nullable=True)
+                                                            nullable=False)
     responsavel: Mapped["User"] = relationship(back_populates="tarefas")
