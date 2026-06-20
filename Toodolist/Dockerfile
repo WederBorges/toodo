@@ -12,4 +12,4 @@ RUN poetry install
 
 EXPOSE 8080
 
-CMD gunicorn run:app --bind 0.0.0.0:$PORT
+CMD ["sh", "-c", "exec gunicorn run:app --bind 0.0.0.0:${PORT:-5000}"]
