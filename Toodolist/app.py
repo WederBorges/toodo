@@ -14,7 +14,7 @@ from flask_wtf.csrf import CSRFProtect
 
 load_dotenv()
 
-SECRET_KEY = os.getenv('SECRET_KEY_')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 def create_app(conf):
     
