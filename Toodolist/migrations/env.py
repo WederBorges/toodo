@@ -6,6 +6,10 @@ from database.conf import Base
 from database.conf import banco_prod
 from models.models import User, Tarefas 
 from alembic import context
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -60,7 +64,16 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    config.set_main_option("sqlalchemy.url", banco_prod.DATABASE_SQLALCHEMY_URI)
+    database_uri = os.getenv("DATABASE_URL", os.getenv("DATABASE_URL_PUBLIC", banco_prod.DATABASE_SQLALCHEMY_URI))
+
+    if database_uri.startswith('postgresql://'):
+        database_uri = database_uri.replace(
+            'postgresql://',
+            'postgresql+psycopg://'
+        )
+
+    config.set_main_option("sqlalchemy.url", database_uri)
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

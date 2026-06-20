@@ -28,8 +28,6 @@ def create_app(conf):
     
 
     engine = create_engine(conf)
-    os.makedirs("data", exist_ok=True)
-    Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine) 
     app.Session = Session
 

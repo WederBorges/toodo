@@ -6,11 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-producao = False
 
 database_uri = os.getenv(
-    "DATABASE_URL",
-    banco_prod.DATABASE_SQLALCHEMY_URI)
+    "DATABASE_URL", 
+     os.getenv("DATABASE_URL_PUBLIC", banco_prod.DATABASE_SQLALCHEMY_URI))
 
 if database_uri.startswith("postgresql://"):
     database_uri = database_uri.replace(

@@ -32,7 +32,7 @@ def upgrade() -> None:
     sa.Column('tarefa', sa.String(length=300), nullable=False),
     sa.Column('descricao_obj', sa.VARCHAR(length=300), nullable=False),
     sa.Column('status', sa.String(length=30), nullable=False),
-    sa.Column('created_at', sa.DATETIME(), nullable=False),
+    sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
     sa.Column('responsavel_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['responsavel_id'], ['user_account.id'], ),
     sa.PrimaryKeyConstraint('id')
