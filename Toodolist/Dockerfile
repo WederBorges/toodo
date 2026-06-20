@@ -10,6 +10,6 @@ RUN poetry config virtualenvs.create false
 
 RUN poetry install
 
-EXPOSE 8080
+EXPOSE 5000
 
 CMD ["sh", "-c", "exec gunicorn run:app --bind 0.0.0.0:${PORT:-5000}"]
