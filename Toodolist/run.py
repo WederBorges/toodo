@@ -12,6 +12,12 @@ database_uri = os.getenv(
     "DATABASE_URL",
     banco_prod.DATABASE_SQLALCHEMY_URI)
 
+if database_uri.startswith("postgresql://"):
+    database_uri = database_uri.replace(
+        "postgresql://",
+        "postgresql+psycopg://"
+    )   
+
 app = create_app(database_uri)
 
 if __name__ == '__main__':
