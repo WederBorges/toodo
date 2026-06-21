@@ -13,7 +13,17 @@ SMTP_PORT = 587  # Use 465 for SSL or 587 for TLS
 USERNAME = os.getenv('EMAIL_TOODO')  # Your email login
 PASSWORD = os.getenv('PASSWORD_TOODO') # Your email password
 
-app = create_app(banco_prod.DATABASE_SQLALCHEMY_URI)
+database_uri = os.getenv(
+    "DATABASE_URL", 
+     os.getenv("DATABASE_URL_PUBLIC", banco_prod.DATABASE_SQLALCHEMY_URI))
+
+if database_uri.startswith("postgresql://"):
+    database_uri = database_uri.replace(
+        "postgresql://",
+        "postgresql+psycopg://"
+    )   
+
+app = create_app(database_uri)
 
 @contextmanager
 def connection_bd():
