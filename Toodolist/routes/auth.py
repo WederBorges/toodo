@@ -19,7 +19,7 @@ from flask_login import (
 from pwdlib import PasswordHash
 from models.models import User
 from sqlalchemy import select
-from utils import validation_number
+
 
 
 password_hash = PasswordHash.recommended()
