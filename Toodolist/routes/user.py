@@ -4,8 +4,8 @@ from models.models import User
 from sqlalchemy.orm import Session,selectinload
 from sqlalchemy import select
 from pwdlib import PasswordHash
-user_bp = Blueprint('user', __name__, url_prefix='/profile')
 
+user_bp = Blueprint('user', __name__, url_prefix='/profile')
 password_hash = PasswordHash.recommended()
 
 @user_bp.route('/user/', methods=['GET', 'POST'])
@@ -28,24 +28,24 @@ def profile_user():
 
             if nome_user:
                 if name_exists and name_exists.user != us_atual.user:
-                    flash("este nik ja existe patrão")
+                    flash("Esse nome de usuário já existe !")
                 else:
                     us_atual.user = nome_user
-                    flash("Nome alterado com sucesso fiote.")
+                    flash("Nome alterado com sucesso !.")
             if email:
                 if email_exists and email_exists.email != us_atual.email:
-                    flash("esse email ja isiste")
+                    flash("Esse email já existe !")
                 else:
                     us_atual.email = email
-                    flash("email alterado com sucesso fiote.")
+                    flash("Email alterado com sucesso !")
             if senha and senhaconfirma:
                 if senha != senhaconfirma:
-                    flash("Senhas divergentes")
+                    flash("Senhas divergentes !")
                     return redirect(url_for("user.profile_user"))
                 elif len(senha) < 8:
-                    flash("Senha com poucos caracteres")
+                    flash("Senha com poucos caracteres !")
                 else:
-                    flash("Senhas alteradas com sucesso")
+                    flash("Senha alterada com sucesso !")
                     senha_raw = password_hash.hash(senha)
                     us_atual.password = senha_raw
                    
@@ -56,6 +56,7 @@ def profile_user():
     return render_template('/profile.html')
 
 @user_bp.route('/user-enable-email', methods=['POST'])
+@login_required
 def enable_email():
     
     with current_app.Session() as session:
@@ -66,12 +67,12 @@ def enable_email():
             if enable_email == None:
                 us_atual.receber_mensagem = False
                 session.commit()
-                flash("Você não receberá emails de notificação")
+                flash("Você não receberá emails de notificação !")
                 return redirect(url_for('user.profile_user'))
             if enable_email == 'on':
                 us_atual.receber_mensagem = True
                 session.commit()
-                flash("Você agora receberá emails de notificação")
+                flash("Você agora receberá emails de notificação !")
                 return redirect(url_for('user.profile_user'))
                 
 @user_bp.route('/delete-account', methods=['POST'])
@@ -89,5 +90,5 @@ def delete_account():
                 logout_user()
                 session.delete(us_atual)
                 session.commit()
-                flash("Conta deletada com sucesso")
+                flash("Conta deletada com sucesso !")
                 return redirect(url_for('auth.register'))
