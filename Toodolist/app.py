@@ -10,14 +10,14 @@ from models.models import User
 import os
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFProtect
-
+from datetime import timedelta
 
 load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 def create_app(conf):
-    
+
 
     app = Flask(__name__)
     app.secret_key = SECRET_KEY
@@ -26,6 +26,13 @@ def create_app(conf):
     app.register_blueprint(auth)
     app.register_blueprint(user_bp)
     
+
+    app.config["REMEMBER_COOKIE_NAME"] = "tooberemember"
+    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=30)
+    app.config["REMEMBER_COOKIE_SECURE"] = True
+    app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+    app.config["REMEMBER_COOKIE_SAMESITE"] = "Lax"
+
 
     engine = create_engine(conf)
     Session = sessionmaker(bind=engine) 

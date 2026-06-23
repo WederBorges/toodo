@@ -16,15 +16,23 @@ def home():
     
     with current_app.Session() as session:
 
+        condicoes = [Tarefas.responsavel_id == current_user.id]
+
         filtro = request.args.get("filtro")
         busca = request.args.get("q", "").strip()
-        print(busca)
-        query = (select(Tarefas)).where(Tarefas.responsavel_id == current_user.id).order_by(Tarefas.status.desc())
-        database = session.scalars(query).all()
-        total_tarefas = len(database)
-        
-        
 
+        ##### Filtros #####
+
+        if busca:
+            condicoes.append(Tarefas.tarefa.like(f"%{busca}%"))
+                    
+        if filtro == 'concluidas':
+             condicoes.append(Tarefas.status=="concluido")
+
+        elif filtro == 'pendentes':
+            condicoes.append(Tarefas.status=="pendente")
+
+        ##### Contadores #####
         pendente = len(session.scalars(
             select(Tarefas)
             .where(and_(
@@ -37,21 +45,14 @@ def home():
                 Tarefas.status=="concluido", 
                 Tarefas.responsavel_id == current_user.id))).all())
         
+        
+        query = (select
+                 (Tarefas).where(and_(*condicoes)).order_by(Tarefas.status.desc()))
+        
+        database = session.scalars(query).all()
+        total_tarefas = len(database)
         percent = concluida/total_tarefas if database else 0
         agora = datetime.now()
-
-        if filtro == 'all':
-            database
-
-        elif filtro == 'concluidas':
-            database = session.scalars(
-                select(Tarefas).
-                where(and_(Tarefas.status=="concluido", Tarefas.responsavel_id == current_user.id))).all()
-
-        elif filtro == 'pendentes':
-            database = session.scalars(
-                select(Tarefas).
-                where(and_(Tarefas.status=="pendente", Tarefas.responsavel_id == current_user.id))).all()
 
         if request.method == 'POST':
             nome = request.form.get('tarefa')

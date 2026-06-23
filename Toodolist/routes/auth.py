@@ -90,6 +90,7 @@ def login():
         if request.method == 'POST':
             nome = request.form.get("nome")
             senha = request.form.get("senha")
+            remember = request.form.get("remember")
             
             user = session.scalar(select(User).where(User.user == nome))
             if not user:
@@ -102,7 +103,10 @@ def login():
                 flash("Senha incorreta")
                 return redirect(url_for('auth.login'))
             else:
-                login_user(user)
+                if remember == "on":
+                    login_user(user, remember=True)
+                else:
+                    login(user)
                 flash("Login feito com sucesso !")
                 return redirect(url_for('tarefas.home'))
 

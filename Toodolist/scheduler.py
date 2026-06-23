@@ -2,8 +2,8 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 import os
 from sqlalchemy import select, func, and_
 from models.models import User,Tarefas
-from email.mime.text import MIMEText
-from services import connection_bd, conection_stmp
+from services import connection_bd
+import resend
 
 
 def enviar_mensagem():
@@ -16,14 +16,13 @@ def enviar_mensagem():
                     Tarefas.status=='pendente',
                     User.receber_mensagem == True))
                 .join(Tarefas.responsavel)
-                .group_by(User.id)
+                .group_by(User.id, User.user, User.email)
                 
             )
         results = session.execute(stmt).all()
+        
+        resend.api_key = (os.getenv("RESEND_API_KEY"))
 
-    
-    with conection_stmp() as server:
-                
         for n in results:
             qtd = n[0]
             nome = n[1]
@@ -32,21 +31,15 @@ def enviar_mensagem():
             if not email:
                 continue
             
-            sender_email = os.getenv('EMAIL_TOODO')
-            receiver_email = email
-            subject = "Lembrancinhas do Toodo"
-            body = f"Olá {nome}. Você tem {qtd} tarefas em em aberto"
+            response = resend.Emails.send({
+                "from": f"Toodo <{os.getenv('RESEND_FROM')}>",
+                "to": [email],
+                "subject": "Lembranças do To-be",
+                "html": f"<h1>Olá, {nome}. Você tem {qtd} tarefas em aberto. Não se esqueçaaa heinn!</h1>"
+            })
 
-            message = MIMEText(body, 'plain')
-            message['Subject'] = subject
-            message['From'] = sender_email
-            message['To'] = receiver_email
-            print(f"Enviando para: {email}")
-
-            server.sendmail(sender_email, receiver_email, message.as_string())
-                
     
 scheduler = BlockingScheduler()
-print("Rodei")
 job = scheduler.add_job(enviar_mensagem, 'cron', hour=8, minute=30)
+
 scheduler.start() 
