@@ -106,7 +106,7 @@ def login():
                 if remember == "on":
                     login_user(user, remember=True)
                 else:
-                    login(user)
+                    login_user(user)
                 flash("Login feito com sucesso !")
                 return redirect(url_for('tarefas.home'))
 
