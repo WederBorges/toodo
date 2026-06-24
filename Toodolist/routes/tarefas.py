@@ -7,7 +7,7 @@ from models.models import Tarefas, User
 from flask_login import current_user, login_required
 
 
-tarefas_bp = Blueprint('tarefas', __name__, url_prefix='/')
+tarefas_bp = Blueprint('tarefas', __name__, url_prefix='tarefas/')
 
 
 @tarefas_bp.route('/', methods=['GET', 'POST'])
