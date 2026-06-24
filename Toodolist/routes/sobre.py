@@ -1,3 +1,4 @@
+from flask import Blueprint, render_template
 sobre_bp = Blueprint('sobre', __name__, url_prefix='/sobre')
 
 
