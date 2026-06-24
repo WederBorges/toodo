@@ -19,9 +19,41 @@
     <!-- Card -->
     <div class="card shadow-lg" style="background:#161B22; border:1px solid rgba(255,255,255,0.07);">
       <div class="card-body p-4">
-        <h4 style="font-size:15px; font-weight:600; color:#E6EDF3; margin-bottom:20px;">
-          Bem-vindo de volta
+        <h4 style="font-size:15px; font-weight:600; color:#E6EDF3; margin-bottom:20px;
+                   font-family:'Courier New', monospace; min-height:1.5em;">
+          <span id="tw-text" style="color:#00C0CC;"></span><span id="tw-cursor"
+            style="display:inline-block; width:2px; height:1em; background:#00C0CC;
+                   vertical-align:middle; margin-left:2px; animation:tw-blink .7s step-end infinite;">
+          </span>
         </h4>
+        <style>
+          @keyframes tw-blink { 50% { opacity: 0; } }
+        </style>
+        <script>
+          (function () {
+            var phrases = [
+              "Bem-vindo de volta.",
+              "Estávamos com saudades!",
+              "Pronto para ser produtivo?",
+            ];
+            var el = document.getElementById('tw-text');
+            var pi = 0, ci = 0, deleting = false, pause = 0;
+            function tick() {
+              var phrase = phrases[pi];
+              if (pause > 0) { pause--; setTimeout(tick, 80); return; }
+              if (!deleting) {
+                el.textContent = phrase.slice(0, ++ci);
+                if (ci === phrase.length) { deleting = true; pause = 22; }
+                setTimeout(tick, 75);
+              } else {
+                el.textContent = phrase.slice(0, --ci);
+                if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; pause = 5; }
+                setTimeout(tick, 38);
+              }
+            }
+            tick();
+          })();
+        </script>
 
         <form method="post" action="{{ url_for('auth.login') }}">
 
