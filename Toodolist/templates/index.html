@@ -4,202 +4,294 @@
 {% block content %}
 {% include 'navbar.html' %}
 
-<div class="container-fluid px-4 px-xl-5 py-4" style="margin-top: 56px;">
-      {% block messages %}
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      {% endblock %}
-      
+<div class="container-fluid px-3 px-md-4 py-4" style="margin-top:68px;">
+
+  {# ─── Flash messages ─── #}
+  {% block messages %}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-primary alert-dismissible fade show mb-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  {% endblock %}
+
   {# ─── Stats ─── #}
   <div class="row g-3 mb-4">
+
     <div class="col-6 col-md-3">
-      <div class="card h-100 border-secondary border-2">
+      <div class="card h-100" style="border:1px solid rgba(255,255,255,0.07);">
         <div class="card-body py-3">
-          <div class="text-secondary small text-uppercase fw-semibold">Total de tarefas</div>
-          <div class="d-flex align-items-baseline gap-2 mt-1">
-            <span class="fs-2 fw-bold">{{ total_tarefas }}</span>
-            <span class="badge bg-secondary">tudo</span>
+          <div style="font-size:15px; font-weight:600; text-transform:uppercase;
+                      letter-spacing:0.06em; color:#6E7681; margin-bottom:10px;">
+            Total de tarefas
+          </div>
+          <div class="d-flex align-items-baseline gap-2">
+            <span style="font-size:28px; font-weight:700; color:#E6EDF3; line-height:1;">
+              {{ total_tarefas }}
+            </span>
+            <span class="badge rounded-pill"
+                  style="background:rgba(255,255,255,0.07); color:#8B949E; font-size:13px;">
+              tudo
+            </span>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-6 col-md-3">
-      <div class="card h-100 border-danger border-2">
+      <div class="card h-100" style="border:1px solid rgba(46,160,67,0.3);">
         <div class="card-body py-3">
-          <div class="text-danger small text-uppercase fw-semibold">Concluídas</div>
-          <div class="d-flex align-items-baseline gap-2 mt-1">
-            <span class="fs-2 fw-bold">{{ concluida }}</span>
-            <span class="badge bg-danger">{{ percent }}</span>
+          <div style="font-size:15px; font-weight:600; text-transform:uppercase;
+                      letter-spacing:0.06em; color:#2EA043; margin-bottom:10px;">
+            Concluídas
+          </div>
+          <div class="d-flex align-items-baseline gap-2">
+            <span style="font-size:28px; font-weight:700; color:#E6EDF3; line-height:1;">
+              {{ concluida }}
+            </span>
+            <span class="badge rounded-pill"
+                  style="background:rgba(46,160,67,0.15); color:#2EA043; font-size:13px;">
+              {{ percent }}
+            </span>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-6 col-md-3">
-      <div class="card h-100 border-warning border-2">
+      <div class="card h-100" style="border:1px solid rgba(210,153,34,0.3);">
         <div class="card-body py-3">
-          <div class="text-warning-emphasis small text-uppercase fw-semibold">Pendentes</div>
-          <div class="d-flex align-items-baseline gap-2 mt-1">
-            <span class="fs-2 fw-bold">{{ pendente }}</span>
-            <span class="badge bg-warning text-dark">a fazer</span>
+          <div style="font-size:15px; font-weight:600; text-transform:uppercase;
+                      letter-spacing:0.06em; color:#D29922; margin-bottom:10px;">
+            Pendentes
+          </div>
+          <div class="d-flex align-items-baseline gap-2">
+            <span style="font-size:28px; font-weight:700; color:#E6EDF3; line-height:1;">
+              {{ pendente }}
+            </span>
+            <span class="badge rounded-pill"
+                  style="background:rgba(210,153,34,0.15); color:#D29922; font-size:13px;">
+              a fazer
+            </span>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-6 col-md-3">
-      <div class="card h-100 border-primary border-2">
+      <div class="card h-100" style="border:1px solid rgba(0,192,204,0.2);">
         <div class="card-body py-3">
-          <div class="d-flex justify-content-between">
-            <span class="text-primary small text-uppercase fw-semibold">Progresso</span>
-            <span class="small fw-bold text-primary">{{ percent }}</span>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span style="font-size:15px; font-weight:600; text-transform:uppercase;
+                         letter-spacing:0.06em; color:#00C0CC;">
+              Progresso
+            </span>
+            <span style="font-size:13x; font-weight:700; color:#00C0CC;">{{ percent }}</span>
           </div>
-          <div class="progress mt-2" style="height:10px; background:#e9ecef;">
-            <div class="progress-bar bg-primary"
-                 role="progressbar"
-                 style="width: {{ percent_value }}%"
-                 aria-valuenow="{{ percent_value }}"
-                 aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="progress mt-2" style="height:7px; background:rgba(255,255,255,0.07); border-radius:99px;">
+            <div class="progress-bar" role="progressbar"
+                 style="width:{{ percent_value }}%; background:linear-gradient(90deg,#005A8B,#00C0CC); border-radius:99px;"
+                 aria-valuenow="{{ percent_value }}" aria-valuemin="0" aria-valuemax="100">
+            </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 
   {# ─── Adicionar tarefa ─── #}
-  <div class="card mb-3 border-dark border-2">
-    <div class="card-header bg-dark text-white py-2">
-      <span class="fw-semibold">+ Nova tarefa</span>
+  <div class="card mb-3" style="border:1px solid rgba(255,255,255,0.07);">
+    <div class="card-header py-2 px-3"
+         style="background:#1C2228; border-bottom:1px solid rgba(255,255,255,0.07);">
+      <span style="font-size:13px; font-weight:600; color:#E6EDF3;">+ Nova tarefa</span>
     </div>
-    <div class="card-body">
+    <div class="card-body py-3 px-3">
       <form method="post" action="{{ url_for('tarefas.home') }}" class="row g-2 align-items-end">
         <div class="col-md-4">
-          <label for="add-tarefa" class="form-label small mb-1 fw-semibold">Tarefa</label>
-          <input id="add-tarefa" name="tarefa" class="form-control" required
-                 placeholder="o que precisa ser feito?">
+          <label for="add-tarefa" class="form-label mb-1"
+                 style="font-size:10px; font-weight:600; text-transform:uppercase;
+                        letter-spacing:0.06em; color:#8B949E;">
+            Tarefa
+          </label>
+          <input id="add-tarefa" name="tarefa" class="form-control"
+                 placeholder="o que precisa ser feito?" required>
         </div>
         <div class="col-md-6">
-          <label for="add-descricao" class="form-label small mb-1 fw-semibold">Descrição</label>
+          <label for="add-descricao" class="form-label mb-1"
+                 style="font-size:10px; font-weight:600; text-transform:uppercase;
+                        letter-spacing:0.06em; color:#8B949E;">
+            Descrição
+          </label>
           <input id="add-descricao" name="descricao" class="form-control"
                  placeholder="detalhes (opcional)">
         </div>
         <div class="col-md-2">
-          <button type="submit" class="btn btn-dark w-100">Enviar tarefa</button>
+          <button type="submit" class="btn btn-primary w-100"
+                  style="font-size:13px; font-weight:600; padding:9px;">
+            Enviar tarefa
+          </button>
         </div>
       </form>
     </div>
   </div>
 
-  {# ─── Filtros (?filtro=all|concluidas|pendentes) — fundo preto ─── #}
+  {# ─── Filtros ─── #}
+  <style>
+    .filter-pill { display:inline-flex; gap:4px; padding:5px; border-radius:8px; background:#161B22; border:1px solid rgba(255,255,255,0.07); margin-bottom:16px; }
+    .filter-pill a { font-size:13px; font-weight:500; text-decoration:none; padding:7px 18px; border-radius:6px; color:#6E7681; transition:background .15s,color .15s; }
+    .filter-pill a:hover { background:rgba(255,255,255,0.06); color:#E6EDF3; }
+    .filter-pill a.f-all    { background:#005A8B; color:#fff; font-weight:600; }
+    .filter-pill a.f-done   { background:rgba(46,160,67,0.18); color:#2EA043; font-weight:600; border:1px solid rgba(46,160,67,0.3); }
+    .filter-pill a.f-todo   { background:rgba(210,153,34,0.18); color:#D29922; font-weight:600; border:1px solid rgba(210,153,34,0.3); }
+    .tbl-btn { transition:filter .15s, box-shadow .15s; cursor:pointer; }
+    .tbl-btn:hover { filter:brightness(1.3); box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    .tbl-btn:active { filter:brightness(0.9); }
+    .table td { font-size:14px; }
+    .table thead th { font-size:11px; }
+  </style>
   {% set filtro_atual = request.args.get('filtro', 'all') %}
-  <div class="bg-dark p-2 rounded mb-3 d-inline-flex">
-    <ul class="nav nav-pills gap-1 mb-0" data-bs-theme="dark">
-      <li class="nav-item">
-        <a class="nav-link {{ 'active bg-light text-dark' if filtro_atual == 'all' else 'text-white-50' }}"
-           href="{{ url_for('tarefas.home', filtro='all') }}">Todas tarefas</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ 'active bg-success' if filtro_atual == 'concluidas' else 'text-white-50' }}"
-           href="{{ url_for('tarefas.home', filtro='concluidas') }}">Concluídas</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link {{ 'active bg-warning text-dark' if filtro_atual == 'pendentes' else 'text-white-50' }}"
-           href="{{ url_for('tarefas.home', filtro='pendentes') }}">Pendentes</a>
-      </li>
-    </ul>
+  <div class="filter-pill">
+    <a href="{{ url_for('tarefas.home', filtro='all') }}"
+       {% if filtro_atual == 'all' %}class="f-all"{% endif %}>
+      Todas tarefas
+    </a>
+    <a href="{{ url_for('tarefas.home', filtro='concluidas') }}"
+       {% if filtro_atual == 'concluidas' %}class="f-done"{% endif %}>
+       Concluídas
+    </a>
+    <a href="{{ url_for('tarefas.home', filtro='pendentes') }}"
+       {% if filtro_atual == 'pendentes' %}class="f-todo"{% endif %}>
+       Pendentes
+    </a>
   </div>
 
   {# ─── Tabela de tarefas ─── #}
-  <div class="card border-dark border-2 shadow-sm">
+  <div class="card" style="border:1px solid rgba(255,255,255,0.07);">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="table-dark">
           <tr>
-            <th style="width:48px">#</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Status</th>
-            <th>Data Criação</th>
-            <th class="text-end" style="min-width:280px;">Ações</th>
+            <th style="width:48px; font-size:10px; letter-spacing:0.06em;">#</th>
+            <th style="font-size:15px; letter-spacing:0.06em;">Tarefa</th>
+            <th style="font-size:15px; letter-spacing:0.06em;">Descrição</th>
+            <th style="font-size:15px; letter-spacing:0.06em;">Status</th>
+            <th style="font-size:15px; letter-spacing:0.06em;">Data</th>
+            <th class="text-end" style="min-width:260px; font-size:15px; letter-spacing:0.06em;">Ações</th>
           </tr>
         </thead>
         <tbody>
         {% for tarefa in database %}
-          <tr>
-            <td class="text-muted font-monospace">{{ tarefa.id }}</td>
-            <td class="fw-semibold">
-              {% if tarefa.tarefa %}{{ tarefa.tarefa }}{% else %}<span class="text-muted">(sem nome)</span>{% endif %}
+          <tr style="{% if tarefa.status == 'concluido' %}opacity:.7;{% endif %}">
+            <td class="font-monospace" style="font-size:12px; color:#484F58;">{{ tarefa.id }}</td>
+            <td style="font-size:15px; font-weight:600;
+                       {% if tarefa.status == 'concluido' %}text-decoration:line-through; color:#6E7681;{% else %}color:#E6EDF3;{% endif %}">
+              {% if tarefa.tarefa %}{{ tarefa.tarefa }}{% else %}<span style="color:#484F58;">(sem nome)</span>{% endif %}
             </td>
-            <td class="text-muted">{{ tarefa.descricao_obj or '—' }}</td>
+            <td style="font-size:15px; color:#8B949E;">{{ tarefa.descricao_obj or '—' }}</td>
             <td>
               {% if tarefa.status == 'concluido' %}
-                <span class="badge bg-success">concluído</span>
+                <span class="badge rounded-pill"
+                      style="background:rgba(46,160,67,0.15); color:#2EA043; font-size:11px; font-weight:600;">
+                  concluído
+                </span>
               {% else %}
-                <span class="badge bg-warning text-dark">pendente</span>
+                <span class="badge rounded-pill"
+                      style="background:rgba(210,153,34,0.15); color:#D29922; font-size:11px; font-weight:600;">
+                  pendente
+                </span>
               {% endif %}
             </td>
-            <td class="text-muted small font-monospace">
-              {{ tarefa.created_at.strftime('%d/%m/%Y %H:%M') if tarefa.created_at else '' }}
+            <td class="font-monospace" style="font-size:15px; color:#484F58;">
+              {{ tarefa.created_at.strftime('%d/%m/%Y') if tarefa.created_at else '' }}
             </td>
             <td class="text-end">
               <div class="d-inline-flex gap-1">
-                {# Concluir #}
+
                 {% if tarefa.status == 'pendente' %}
                   <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-success">Concluir</button>
+                    <button type="submit" class="btn btn-sm tbl-btn"
+                            style="background:rgba(46,160,67,0.1); border:1px solid rgba(46,160,67,0.22);
+                                   color:#2EA043; font-size:13px; font-weight:600; padding:5px 13px;">
+                      Concluir
+                    </button>
                   </form>
                 {% else %}
-                <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}">
-                  <button class="btn btn-sm btn-outline-secondary">Reabrir</button>
-                </form>
+                  <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-sm tbl-btn"
+                            style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+                                   color:#8B949E; font-size:13px; font-weight:500; padding:5px 13px;">
+                      Reabrir
+                    </button>
+                  </form>
                 {% endif %}
 
-                {# Editar (abre modal) #}
-                <button type="button" class="btn btn-sm btn-outline-dark"
+                <button type="button" class="btn btn-sm tbl-btn"
+                        style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
+                               color:#8B949E; font-size:13px; font-weight:500; padding:5px 13px;"
                         data-bs-toggle="modal" data-bs-target="#editModal{{ tarefa.id }}">
                   Editar
                 </button>
 
-                {# Excluir #}
                 <form method="post" action="{{ url_for('tarefas.excluir_tarefa', indice=tarefa.id) }}"
                       class="d-inline"
                       onsubmit="return confirm('Excluir esta tarefa?');">
-                  <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                  <button type="submit" class="btn btn-sm tbl-btn"
+                          style="background:rgba(218,54,51,0.08); border:1px solid rgba(218,54,51,0.18);
+                                 color:#DA3633; font-size:13px; font-weight:500; padding:5px 13px;">
+                    Excluir
+                  </button>
                 </form>
+
               </div>
             </td>
           </tr>
 
-          {# Modal de edição (uma por tarefa) #}
+          {# ── Modal de edição ── #}
           <div class="modal fade" id="editModal{{ tarefa.id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
-              <div class="modal-content">
+              <div class="modal-content" style="background:#161B22; border:1px solid rgba(255,255,255,0.07);">
                 <form method="post" action="{{ url_for('tarefas.editar_tarefa', indice=tarefa.id) }}">
-                  <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Editar tarefa #{{ tarefa.id }}</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                    <h5 class="modal-title" style="font-size:15px; font-weight:600; color:#E6EDF3;">
+                      Editar tarefa #{{ tarefa.id }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                   </div>
                   <div class="modal-body">
                     <div class="mb-3">
-                      <label class="form-label small fw-semibold">Tarefa</label>
+                      <label class="form-label"
+                             style="font-size:11px; font-weight:600; text-transform:uppercase;
+                                    letter-spacing:0.06em; color:#8B949E;">
+                        Tarefa
+                      </label>
                       <input name="tarefa" class="form-control" required
                              value="{{ tarefa.tarefa or '' }}">
                     </div>
-                    <div class="mb-3">
-                      <label class="form-label small fw-semibold">Descrição</label>
+                    <div class="mb-2">
+                      <label class="form-label"
+                             style="font-size:11px; font-weight:600; text-transform:uppercase;
+                                    letter-spacing:0.06em; color:#8B949E;">
+                        Descrição
+                      </label>
                       <input name="descricao" class="form-control"
                              value="{{ tarefa.descricao_obj or '' }}">
                     </div>
                   </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-dark">Salvar alterações</button>
+                  <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.07);">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal"
+                            style="color:#8B949E; font-size:13px;">
+                      Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary"
+                            style="font-size:13px; font-weight:600; padding:8px 20px;">
+                      Salvar alterações
+                    </button>
                   </div>
                 </form>
               </div>
@@ -208,7 +300,7 @@
 
         {% else %}
           <tr>
-            <td colspan="6" class="text-center text-muted py-5">
+            <td colspan="6" class="text-center py-5" style="color:#484F58; font-size:14px;">
               {% if filtro_atual == 'concluidas' %}
                 Nenhuma tarefa concluída ainda.
               {% elif filtro_atual == 'pendentes' %}

@@ -1,53 +1,82 @@
 {% extends "bootstrap.html" %}
 {% block title %}Entrar — to-be list{% endblock %}
 
-
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5 col-xl-4">
+<div class="min-vh-100 d-flex align-items-center justify-content-center px-3"
+     style="background:#0D1117;">
+  <div style="width:100%; max-width:400px;">
 
-      <div class="text-center mb-4">
-        <h1 class="h3 fw-semibold mb-1">to-be list</h1>
-        <p class="text-muted small mb-0">Entre para continuar suas tarefas.</p>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-body p-4">
-          <h4 class="card-title mb-3">Bem-vindo de volta</h4>
-
-          <form method="post" action="{{ url_for('auth.login') }}">
-
-            <div class="form-floating mb-3">
-              <input type="text" class="form-control" id="nome" name="nome"
-                     placeholder="usuario" required autofocus>
-              <label for="nome">Nome de usuário</label>
-            </div>
-
-            <div class="form-floating mb-3">
-              <input type="password" class="form-control" id="senha" name="senha"
-                     placeholder="senha" required>
-              <label for="senha">Senha</label>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                <label class="form-check-label small" for="remember">Lembrar de mim</label>
-              </div>
-              <a href="#" class="link-primary small">Esqueci a senha</a>
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
-          </form>
-        </div>
-      </div>
-
-      <p class="text-center text-muted small mt-3">
-        Ainda não tem conta?
-        <a href="{{ url_for('auth.register') }}" class="link-primary fw-semibold">Registre-se</a>
-      </p>
+    <!-- Logo + título -->
+    <div class="text-center mb-4">
+      <img src="{{ url_for('static', filename='favicon.svg') }}"
+           width="46" height="46" alt="To-be list" class="mb-3">
+      <h1 style="font-size:22px; font-weight:700; color:#E6EDF3; letter-spacing:-0.02em; margin-bottom:4px;">
+        To-be list
+      </h1>
+      <p style="font-size:13px; color:#6E7681; margin:0;">Entre para continuar suas tarefas.</p>
     </div>
+
+    <!-- Card -->
+    <div class="card shadow-lg" style="background:#161B22; border:1px solid rgba(255,255,255,0.07);">
+      <div class="card-body p-4">
+        <h4 style="font-size:15px; font-weight:600; color:#E6EDF3; margin-bottom:20px;">
+          Bem-vindo de volta
+        </h4>
+
+        <form method="post" action="{{ url_for('auth.login') }}">
+
+          <div class="mb-3">
+            <label for="nome" class="form-label"
+                   style="font-size:11px; font-weight:600; letter-spacing:0.06em;
+                          text-transform:uppercase; color:#8B949E;">
+              Usuário
+            </label>
+            <input type="text" class="form-control" id="nome" name="nome"
+                   placeholder="seu_usuario" required autofocus>
+          </div>
+
+          <div class="mb-3">
+            <label for="senha" class="form-label"
+                   style="font-size:11px; font-weight:600; letter-spacing:0.06em;
+                          text-transform:uppercase; color:#8B949E;">
+              Senha
+            </label>
+            <input type="password" class="form-control" id="senha" name="senha"
+                   placeholder="••••••••" required>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="remember" name="remember"
+                     style="accent-color:#00C0CC;">
+              <label class="form-check-label" for="remember"
+                     style="font-size:13px; color:#8B949E;">
+                Lembrar de mim
+              </label>
+            </div>
+            <a href="#" style="font-size:12px; color:#00C0CC; text-decoration:none; font-weight:500;">
+              Esqueci a senha
+            </a>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100"
+                  style="padding:11px; font-size:14px; font-weight:700; letter-spacing:0.02em;">
+            Entrar
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Link de registro -->
+    <p class="text-center mt-3" style="font-size:13px; color:#6E7681; margin:0;">
+      Sem conta?
+      <a href="{{ url_for('auth.register') }}"
+         style="color:#00C0CC; text-decoration:none; font-weight:600;">
+        Registre-se
+      </a>
+    </p>
+
   </div>
 </div>
 {% endblock %}

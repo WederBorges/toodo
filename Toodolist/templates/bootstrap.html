@@ -1,18 +1,111 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" data-bs-theme="dark">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}Bootstrap demo {% endblock %}</title>
+    <title>{% block title %}to-be list{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+      /* ── Tipografia ─────────────────────────────── */
+      *, body { font-family: 'Space Grotesk', system-ui, sans-serif; }
+
+      /* ── Tokens de cor Bootstrap ─────────────────── */
+      [data-bs-theme="dark"] {
+        --bs-body-bg:               #0D1117;
+        --bs-body-color:            #E6EDF3;
+        --bs-secondary-color:       #8B949E;
+        --bs-tertiary-color:        #6E7681;
+        --bs-card-bg:               #161B22;
+        --bs-card-border-color:     rgba(255,255,255,0.07);
+        --bs-border-color:          rgba(255,255,255,0.07);
+        --bs-border-color-translucent: rgba(255,255,255,0.07);
+        --bs-secondary-bg:          #161B22;
+        --bs-tertiary-bg:           #1C2228;
+        --bs-modal-bg:              #161B22;
+        --bs-modal-header-border-color: rgba(255,255,255,0.07);
+        --bs-offcanvas-bg:          #161B22;
+        --bs-dropdown-bg:           #1C2228;
+        --bs-dropdown-border-color: rgba(255,255,255,0.07);
+        --bs-dropdown-link-hover-bg:#252D38;
+        --bs-link-color:            #00C0CC;
+        --bs-link-hover-color:      #00D8E6;
+        --bs-primary:               #005A8B;
+        --bs-primary-rgb:           0, 90, 139;
+      }
+
+      /* ── Form controls ───────────────────────────── */
+      .form-control, .form-select {
+        background-color: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.1);
+        color: #E6EDF3;
+      }
+      .form-control:focus, .form-select:focus {
+        background-color: rgba(255,255,255,0.06);
+        border-color: rgba(0,192,204,0.5);
+        box-shadow: 0 0 0 3px rgba(0,192,204,0.12);
+        color: #E6EDF3;
+      }
+      .form-control::placeholder { color: #484F58; }
+      .form-floating > label { color: #6E7681; }
+
+      /* ── Botões ──────────────────────────────────── */
+      .btn-primary {
+        background-color: #005A8B;
+        border-color: #005A8B;
+      }
+      .btn-primary:hover, .btn-primary:focus {
+        background-color: #004d78;
+        border-color: #004d78;
+      }
+
+      /* ── Tabela ──────────────────────────────────── */
+      .table {
+        --bs-table-bg: transparent;
+        --bs-table-hover-bg: rgba(255,255,255,0.03);
+        --bs-table-color: #E6EDF3;
+        --bs-table-border-color: rgba(255,255,255,0.06);
+      }
+      .table-dark {
+        --bs-table-bg: #1C2228;
+        --bs-table-color: #8B949E;
+        --bs-table-border-color: rgba(255,255,255,0.06);
+      }
+
+      /* ── Nav pills ───────────────────────────────── */
+      .nav-pills .nav-link { color: #6E7681; }
+      .nav-pills .nav-link.active { background-color: #005A8B; color: #fff; }
+
+      /* ── Badges ──────────────────────────────────── */
+      .badge-pendente { background: rgba(210,153,34,0.15); color: #D29922; }
+      .badge-concluido { background: rgba(46,160,67,0.15); color: #2EA043; }
+
+      /* ── Alertas ─────────────────────────────────── */
+      .alert-primary {
+        --bs-alert-bg: rgba(0,90,139,0.15);
+        --bs-alert-border-color: rgba(0,90,139,0.3);
+        --bs-alert-color: #7BBCDC;
+      }
+
+      /* ── Scrollbar ───────────────────────────────── */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: #0D1117; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+      /* ── Utilitários ─────────────────────────────── */
+      .text-cyan  { color: #00C0CC; }
+      .border-subtle { border-color: rgba(255,255,255,0.07) !important; }
+    </style>
   </head>
-  <body>
-        
+  <body style="background:#0D1117;">
+
     {% block messages %}
       {% with messages = get_flashed_messages() %}
         {% if messages %}
           {% for message in messages %}
-            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            <div class="alert alert-primary alert-dismissible fade show mx-3 mt-2" role="alert">
               {{ message }}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -21,26 +114,21 @@
       {% endwith %}
     {% endblock %}
 
-    {% block content %} 
-      
-      Hello, world! 
-      
-      {% endblock %}
+    {% block content %}{% endblock %}
+
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const token = "{{ csrf_token() }}";
-
-    // O seletor [method="post" i] busca "post" ignorando maiúsculas/minúsculas (case-insensitive)
-    document.querySelectorAll('form[method="post" i]').forEach(function (form) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'csrf_token';
-        input.value = token;
-        form.appendChild(input);
-    });
-});
-</script>       
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const token = "{{ csrf_token() }}";
+        document.querySelectorAll('form[method="post" i]').forEach(function (form) {
+          const input = document.createElement('input');
+          input.type  = 'hidden';
+          input.name  = 'csrf_token';
+          input.value = token;
+          form.appendChild(input);
+        });
+      });
+    </script>
   </body>
 </html>

@@ -1,50 +1,128 @@
-{# templates/_navbar.html — parcial incluída pelo base.html quando há usuário logado #}
-<nav class="navbar bg-dark fixed-top border-bottom border-body" data-bs-theme="dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="{{ url_for('tarefas.home') }}">
-      Área de trabalho - Bem vindo, {{ current_user.user }}
+{# templates/navbar.html — barra de navegação principal #}
+<nav class="navbar fixed-top" style="background:#0D1117; border-bottom:1px solid rgba(255,255,255,0.07); height:60px; z-index:1030;">
+  <div class="container-fluid px-3 px-md-4 h-100 d-flex align-items-center gap-3">
+
+    <!-- Brand -->
+    <a class="d-flex align-items-center gap-2 text-decoration-none flex-shrink-0"
+       href="{{ url_for('tarefas.home') }}">
+      <img src="{{ url_for('static', filename='favicon.svg') }}"
+           width="30" height="30" alt="To-be list logo">
+      <span style="font-size:16px; font-weight:700; color:#E6EDF3; letter-spacing:-0.02em;">To-be list</span>
     </a>
-    <button class="navbar-toggler" type="button"
-            data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-            aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
 
-    <div class="offcanvas offcanvas-end" tabindex="-1"
-         id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'tarefas.home' %}active{% endif %}"
-               {% if request.endpoint == 'tarefas.home' %}aria-current="page"{% endif %}
-               href="{{ url_for('tarefas.home') }}">Lista de tarefas</a>
-          </li>
+    <!-- Divider + workspace -->
+    <div class="d-none d-md-flex align-items-center gap-2 flex-shrink-0">
+      <div style="width:1px; height:20px; background:rgba(255,255,255,0.1);"></div>
+      <span style="font-size:13px; color:#6E7681;">
+        Área de trabalho · Bem-vindo, 
+        <span style="color:#8B949E;">{{ current_user.user }} !</span>
+      </span>
+    </div>
 
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">
-              Conta
+    <div class="flex-grow-1"></div>
+
+    <!-- Desktop links + busca -->
+    <div class="d-none d-md-flex align-items-center gap-2">
+
+      <a href="{{ url_for('tarefas.home') }}"
+         class="text-decoration-none px-3 py-1 rounded"
+         style="font-size:13px; font-weight:500;
+                color:{{ '#E6EDF3' if request.endpoint == 'tarefas.home' else '#6E7681' }};
+                background:{{ 'rgba(255,255,255,0.07)' if request.endpoint == 'tarefas.home' else 'transparent' }};">
+        Lista de tarefas
+      </a>
+
+      <!-- Busca -->
+      <form class="d-flex align-items-center" role="search"
+            method="get" action="{{ url_for('tarefas.home') }}">
+        <div class="d-flex align-items-center gap-2 px-3 py-1 rounded"
+             style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); width:200px;">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="#6E7681" stroke-width="1.5"/>
+            <line x1="11" y1="11" x2="14" y2="14" stroke="#6E7681" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input type="search" name="q" class="border-0 bg-transparent p-0 w-100"
+                 style="font-size:13px; color:#E6EDF3; outline:none;"
+                 placeholder="Buscar tarefa…"
+                 value="{{ request.args.get('q', '') }}">
+        </div>
+      </form>
+
+      <!-- Avatar dropdown -->
+      <div class="dropdown">
+        <button class="btn border-0 rounded-circle d-flex align-items-center justify-content-center p-0"
+                style="width:34px; height:34px; background:linear-gradient(135deg,#005A8B,#00C0CC);
+                       font-size:12px; font-weight:700; color:#fff;"
+                data-bs-toggle="dropdown" aria-expanded="false">
+          {{ current_user.user[:2]|upper }}
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end mt-1 shadow"
+            style="min-width:160px; font-size:13px;">
+          <li>
+            <a class="dropdown-item py-2" href="{{ url_for('user.profile_user') }}">
+              Perfil
             </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="{{ url_for('tarefas.home', filtro='concluidas') }}">Concluídas</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('tarefas.home', filtro='pendentes') }}">Pendentes</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Sair</a></li>
-              <li><a class="dropdown-item" href="{{ url_for('user.profile_user') }}">Editar perfil</a></li>
-            </ul>
+          </li>
+          <li><hr class="dropdown-divider my-1"></li>
+          <li>
+            <a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}">
+              Sair
+            </a>
           </li>
         </ul>
-        <form class="d-flex mt-3" role="search" method="get" action="{{ url_for('tarefas.home') }}">
-          <input class="form-control me-2" type="search" name="q"
-                 placeholder="Buscar tarefa…" aria-label="Search"
-                 value="{{ request.args.get('q', '') }}"/>
-          <button class="btn btn-outline-success" type="submit">Buscar</button>
-        </form>
       </div>
     </div>
+
+    <!-- Mobile toggler -->
+    <button class="navbar-toggler border-0 d-md-none p-1" type="button"
+            data-bs-toggle="offcanvas" data-bs-target="#offcanvasNav"
+            aria-controls="offcanvasNav" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <line x1="2" y1="5"  x2="18" y2="5"  stroke="#E6EDF3" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="10" x2="18" y2="10" stroke="#E6EDF3" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="2" y1="15" x2="18" y2="15" stroke="#E6EDF3" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
   </div>
 </nav>
+
+<!-- Offcanvas mobile -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNav"
+     style="background:#161B22; border-left:1px solid rgba(255,255,255,0.07);">
+  <div class="offcanvas-header" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div class="d-flex align-items-center gap-2">
+      <img src="{{ url_for('static', filename='favicon.svg') }}" width="24" height="24" alt="">
+      <span style="font-size:15px; font-weight:700; color:#E6EDF3;">To-be list</span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="mb-3" style="font-size:12px; color:#6E7681;">
+      Logado como <strong style="color:#8B949E;">{{ current_user.user }}</strong>
+    </div>
+
+    <form class="mb-3" role="search" method="get" action="{{ url_for('tarefas.home') }}">
+      <input type="search" name="q" class="form-control form-control-sm"
+             placeholder="Buscar tarefa…"
+             value="{{ request.args.get('q', '') }}">
+    </form>
+
+    <ul class="navbar-nav gap-1">
+      <li class="nav-item">
+        <a class="nav-link rounded px-3 py-2 {% if request.endpoint == 'tarefas.home' %}active{% endif %}"
+           href="{{ url_for('tarefas.home') }}"
+           style="font-size:14px;">Lista de tarefas</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link rounded px-3 py-2 {% if request.endpoint == 'user.profile_user' %}active{% endif %}"
+           href="{{ url_for('user.profile_user') }}"
+           style="font-size:14px;">Perfil</a>
+      </li>
+      <li class="nav-item mt-2">
+        <a class="nav-link rounded px-3 py-2 text-danger"
+           href="{{ url_for('auth.logout') }}"
+           style="font-size:14px;">Sair</a>
+      </li>
+    </ul>
+  </div>
+</div>
