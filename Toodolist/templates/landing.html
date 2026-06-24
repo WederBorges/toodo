@@ -573,7 +573,7 @@
   <body>
     <!-- ══ NAVBAR ══ -->
     <nav class="nav" id="main-nav">
-      <a class="nav-brand" href="{{ url_for('landing.landing') }}">
+      <a class="nav-brand" href="{{ url_for('landing') }}">
         <img
           src="{{ url_for('static', filename='favicon.svg') }}"
           width="28"
@@ -585,6 +585,9 @@
       <div class="nav-links">
         <a class="nav-link-item" href="#features">Funcionalidades</a>
         <a class="nav-link-item" href="#como-funciona">Como funciona</a>
+        <a class="nav-link-item" href="{{ url_for('sobre.sobre_page') }}"
+          >Sobre o projeto</a
+        >
         <a class="btn-ghost" href="{{ url_for('auth.login') }}">Entrar</a>
         <a class="btn-primary-sm" href="{{ url_for('auth.register') }}"
           >Começar grátis</a
@@ -598,7 +601,7 @@
 
       <div class="hero-badge fade-up">
         <span class="dot"></span>
-        Projeto para porftifólio - Autor: Weder Borges
+        Gratuito para sempre
       </div>
 
       <h1 class="hero-title fade-up-2">
@@ -1295,6 +1298,7 @@
         >
         <a href="#features">Funcionalidades</a>
         <a href="#como-funciona">Como funciona</a>
+        <a href="{{ url_for('sobre.sobre_page') }}">Sobre o projeto</a>
       </div>
     </footer>
 
