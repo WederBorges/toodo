@@ -1,0 +1,176 @@
+{% extends "bootstrap.html" %}
+{% block title %}Sobre — to-be list{% endblock %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+  {% include 'navbar.html' %}
+{% endif %}
+
+<div class="container py-5 px-3 px-md-4" style="max-width:820px; {% if current_user.is_authenticated %}margin-top:68px;{% endif %}">
+
+  {# ─── Header ─── #}
+  <div class="text-center mb-5">
+    <img src="{{ url_for('static', filename='favicon.svg') }}" width="52" height="52" alt="To-be list" class="mb-3">
+    <h1 style="font-size:26px; font-weight:700; color:#E6EDF3; letter-spacing:-0.02em; margin-bottom:8px;">
+      Sobre o to-be list
+    </h1>
+    <p style="font-size:14px; color:#6E7681; max-width:520px; margin:0 auto;">
+      Um projeto de portfólio para aprender desenvolvimento back-end de verdade — construindo,
+      travando e resolvendo problemas reais, não copiando de tutorial.
+    </p>
+  </div>
+
+  {# ─── Objetivo ─── #}
+  <div class="card mb-3" style="border:1px solid rgba(255,255,255,0.07);">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="font-size:18px;">🎯</span>
+        <h2 style="font-size:15px; font-weight:600; color:#E6EDF3; margin:0;">Objetivo do projeto</h2>
+      </div>
+      <p style="font-size:14px; color:#8B949E; line-height:1.7; margin-bottom:10px;">
+        O to-be list é um gerenciador de tarefas simples de propósito. A ideia nunca foi a
+        complexidade da regra de negócio — foi usar uma base simples para estudar a fundo cada
+        camada de uma aplicação web real em produção: autenticação, modelagem de dados,
+        migrações de schema, segurança contra ataques comuns e deploy em infraestrutura de verdade.
+      </p>
+      <p style="font-size:14px; color:#8B949E; line-height:1.7; margin:0;">
+        Cada decisão técnica relevante aqui — por que <code style="color:#00C0CC;">Flask-WTF</code>
+        em vez de CSRF manual, por que Alembic em vez de recriar tabelas automaticamente, por que
+        migrar para PostgreSQL — foi tomada entendendo o porquê, não copiando de um boilerplate.
+      </p>
+    </div>
+  </div>
+
+  {# ─── Tecnologias ─── #}
+  <div class="card mb-3" style="border:1px solid rgba(255,255,255,0.07);">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="font-size:18px;">🧱</span>
+        <h2 style="font-size:15px; font-weight:600; color:#E6EDF3; margin:0;">Tecnologias utilizadas</h2>
+      </div>
+      <div class="row g-2">
+        {% set techs = [
+          ('Flask', 'Back-end / framework web'),
+          ('SQLAlchemy', 'ORM'),
+          ('PostgreSQL', 'Banco de dados (produção)'),
+          ('Alembic', 'Migrações de schema'),
+          ('Flask-Login', 'Autenticação e sessão'),
+          ('Flask-WTF', 'Proteção CSRF'),
+          ('APScheduler', 'Agendamento de tarefas'),
+          ('Resend', 'Envio de e-mail transacional'),
+          ('Docker', 'Containerização'),
+          ('Gunicorn', 'Servidor de produção'),
+          ('Railway', 'Deploy e hospedagem'),
+          ('Poetry', 'Gerenciamento de dependências'),
+        ] %}
+        {% for nome, desc in techs %}
+        <div class="col-6 col-md-4">
+          <div class="d-flex align-items-start gap-2 p-2 rounded" style="background:rgba(255,255,255,0.03);">
+            <span style="color:#00C0CC; font-size:13px; margin-top:1px;">▸</span>
+            <div>
+              <div style="font-size:13px; font-weight:600; color:#E6EDF3;">{{ nome }}</div>
+              <div style="font-size:11px; color:#6E7681;">{{ desc }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# ─── Aprendizados ─── #}
+  <div class="card mb-3" style="border:1px solid rgba(255,255,255,0.07);">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="font-size:18px;">📚</span>
+        <h2 style="font-size:15px; font-weight:600; color:#E6EDF3; margin:0;">O que aprendi construindo</h2>
+      </div>
+
+      <div class="mb-4">
+        <div style="font-size:13px; font-weight:600; color:#00C0CC; margin-bottom:5px;">
+          Segurança — proteção CSRF
+        </div>
+        <p style="font-size:14px; color:#8B949E; line-height:1.7; margin:0;">
+          Implementei proteção contra CSRF com <code style="color:#E6EDF3;">Flask-WTF</code>, sem
+          migrar todos os formulários para classes <code style="color:#E6EDF3;">FlaskForm</code> —
+          decisão consciente para manter o escopo da tarefa isolado. A parte mais interessante não
+          foi a proteção em si, mas centralizar a injeção do token num único script no template
+          base, em vez de repetir em cada formulário — inclusive os que vêm de partials incluídos
+          via <code style="color:#E6EDF3;">{% raw %}{% include %}{% endraw %}</code>. Validei testando
+          manualmente: alterar o token no DevTools e confirmar que a requisição cai com
+          <code style="color:#E6EDF3;">400 Bad Request</code> antes de chegar à view.
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <div style="font-size:13px; font-weight:600; color:#00C0CC; margin-bottom:5px;">
+          Migração de banco — SQLite → PostgreSQL
+        </div>
+        <p style="font-size:14px; color:#8B949E; line-height:1.7; margin:0;">
+          Migrei o banco local para PostgreSQL gerenciado, com troca de driver
+          (<code style="color:#E6EDF3;">psycopg</code> v3), ajuste de tipos incompatíveis entre os
+          dois bancos, e remoção do <code style="color:#E6EDF3;">create_all()</code> em favor do
+          Alembic como única fonte de verdade do schema. No caminho, diagnostiquei e corrigi
+          manualmente uma migration corrompida, gerada a partir de um estado transitório do banco.
+        </p>
+      </div>
+
+      <div class="mb-4">
+        <div style="font-size:13px; font-weight:600; color:#00C0CC; margin-bottom:5px;">
+          Deploy — Docker e variáveis de ambiente
+        </div>
+        <p style="font-size:14px; color:#8B949E; line-height:1.7; margin:0;">
+          Resolvi um bug sutil no Dockerfile: a diferença entre <em>exec form</em> e
+          <em>shell form</em> do <code style="color:#E6EDF3;">CMD</code>. A forma array padrão não
+          passa por uma shell, então a variável <code style="color:#E6EDF3;">$PORT</code> (injetada
+          dinamicamente pela hospedagem) nunca era expandida — o servidor sempre subia na porta
+          errada. A correção combina a sintaxe recomendada com uma shell explícita por dentro.
+        </p>
+      </div>
+
+      <div>
+        <div style="font-size:13px; font-weight:600; color:#00C0CC; margin-bottom:5px;">
+          Detalhes que custam caro se ignorados
+        </div>
+        <p style="font-size:14px; color:#8B949E; line-height:1.7; margin:0;">
+          Como <code style="color:#E6EDF3;">request.form.get()</code> retorna string vazia (não
+          <code style="color:#E6EDF3;">None</code>) quando um campo é deixado em branco — e por que
+          isso quebraria uma constraint de e-mail único no banco se não fosse tratado. Como
+          <code style="color:#E6EDF3;">== None</code> não funciona como esperado numa query do
+          SQLAlchemy, e por que <code style="color:#E6EDF3;">.isnot(None)</code> é a forma correta.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  {# ─── Roadmap ─── #}
+  <div class="card" style="border:1px solid rgba(255,255,255,0.07);">
+    <div class="card-body p-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span style="font-size:18px;">🗺️</span>
+        <h2 style="font-size:15px; font-weight:600; color:#E6EDF3; margin:0;">Roadmap futuro</h2>
+      </div>
+      <ul class="mb-0" style="font-size:14px; color:#8B949E; line-height:1.9; padding-left:18px;">
+        <li>Progresso calculado por dia, não só sobre o total histórico</li>
+        <li>Recuperação de senha ("esqueci minha senha")</li>
+        <li>Separação entre banco de produção e de testes</li>
+        <li>Suíte de testes automatizados com <code style="color:#E6EDF3;">pytest</code></li>
+        <li>Refatoração orientada a objetos na camada de regras de negócio</li>
+      </ul>
+    </div>
+  </div>
+
+  {# ─── Footer ─── #}
+  <div class="text-center mt-5">
+    <p style="font-size:12px; color:#484F58; margin-bottom:6px;">
+      Construído por Weder Borges
+    </p>
+    <a href="https://github.com/WederBorges/toodo" target="_blank" rel="noopener"
+       style="font-size:13px; color:#00C0CC; text-decoration:none; font-weight:500;">
+      Ver código no GitHub →
+    </a>
+  </div>
+
+</div>
+{% endblock %}
