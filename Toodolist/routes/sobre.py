@@ -1,6 +1,6 @@
 sobre_bp = Blueprint('sobre', __name__, url_prefix='/sobre')
 
 
-@tarefas_bp.route('/', methods=['GET']
+@sobre_bp.route('/', methods=['GET'])
 def sobre_page():
     return render_template('/sobre.html')
