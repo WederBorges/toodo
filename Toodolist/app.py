@@ -2,6 +2,7 @@ from flask import Flask, current_app
 from routes.tarefas import tarefas_bp
 from routes.auth import auth
 from routes.sobre import sobre_bp
+from routes.landing import landing_bp
 from routes.user import user_bp
 from sqlalchemy import create_engine
 from database.conf import Base
@@ -27,6 +28,7 @@ def create_app(conf):
     app.register_blueprint(auth)
     app.register_blueprint(user_bp)
     app.register_blueprint(sobre_bp)
+    app.register_blueprint(landing_bp)
     
 
     app.config["REMEMBER_COOKIE_NAME"] = "tooberemember"
