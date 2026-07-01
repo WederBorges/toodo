@@ -1,0 +1,576 @@
+{# The To-be Gazette — Email de tarefas pendentes (estilo jornal) Mova para
+Toodolist/templates/ e chame com render_template():
+render_template('email_gazette.html', usuario=usuario, tarefas_pendentes=tarefas_pendentes, data_hoje=data_hoje, edicao_num=edicao_num, url_app=url_app, url_unsubscribe=url_unsubscribe) #}
+<!doctype html>
+<html lang="pt-br" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>The To-be Gazette — {{ data_hoje }}</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #c8c0a8;
+      font-family: Georgia, &quot;Times New Roman&quot;, serif;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    "
+  >
+    <!-- Pré-visualização oculta -->
+    <span
+      style="display: none; max-height: 0px; overflow: hidden; mso-hide: all"
+    >
+      📰 The To-be Gazette — {{ tarefas_pendentes|length }} tarefa{% if
+      tarefas_pendentes|length != 1 %}s{% endif %} reclamam sua atenção hoje.
+    </span>
+
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      style="background-color: #c8c0a8"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 16px">
+          <!-- Wrapper 600px -->
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="
+              max-width: 600px;
+              width: 100%;
+              background-color: #faf3e0;
+              border: 1px solid #c8b898;
+              box-shadow: 4px 6px 24px rgba(0, 0, 0, 0.25);
+            "
+          >
+            <!-- ══ MASTHEAD ══ -->
+            <tr>
+              <td
+                style="
+                  padding: 32px 44px 0;
+                  text-align: center;
+                  border-bottom: 3px double #1a1208;
+                "
+              >
+                <!-- Linha decorativa superior -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin-bottom: 12px"
+                >
+                  <tr>
+                    <td
+                      style="
+                        height: 3px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    ></td>
+                    <td
+                      width="10"
+                      style="
+                        font-size: 0;
+                        line-height: 0;
+                        text-align: center;
+                        color: #1a1208;
+                      "
+                    >
+                      ◆
+                    </td>
+                    <td
+                      style="
+                        height: 1px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    ></td>
+                    <td
+                      width="10"
+                      style="
+                        font-size: 0;
+                        line-height: 0;
+                        text-align: center;
+                        color: #1a1208;
+                      "
+                    >
+                      ◆
+                    </td>
+                    <td
+                      style="
+                        height: 3px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    ></td>
+                  </tr>
+                </table>
+
+                <!-- Título -->
+                <div
+                  style="
+                    font-family: Georgia, &quot;Times New Roman&quot;, serif;
+                    font-size: 52px;
+                    font-weight: 900;
+                    color: #1a1208;
+                    line-height: 1.1;
+                    letter-spacing: 2px;
+                    margin-bottom: 8px;
+                  "
+                >
+                  The To-be Gazette
+                </div>
+
+                <!-- Subtítulo -->
+                <div
+                  style="
+                    font-size: 11px;
+                    letter-spacing: 3px;
+                    text-transform: uppercase;
+                    color: #2a1f0e;
+                    font-family: Georgia, serif;
+                    margin-bottom: 12px;
+                  "
+                >
+                  Diário Oficial de Tarefas e Afazeres &middot; Fundado em 2024
+                </div>
+
+                <!-- Linha dupla -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin-bottom: 0"
+                >
+                  <tr>
+                    <td
+                      style="
+                        height: 2px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="height: 3px; font-size: 0; line-height: 0">
+                      &nbsp;
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      style="
+                        height: 1px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Dateline -->
+                <table
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="margin-top: 10px; padding-bottom: 14px"
+                >
+                  <tr>
+                    <td
+                      style="
+                        font-size: 12px;
+                        font-family: Georgia, serif;
+                        color: #2a1f0e;
+                        text-align: left;
+                      "
+                    >
+                      Vol. I &mdash; N.&ordm; {{ edicao_num }}
+                    </td>
+                    <td
+                      style="
+                        font-size: 12px;
+                        font-family: Georgia, serif;
+                        color: #2a1f0e;
+                        text-align: center;
+                        font-weight: bold;
+                      "
+                    >
+                      {{ data_hoje }}
+                    </td>
+                    <td
+                      style="
+                        font-size: 12px;
+                        font-family: Georgia, serif;
+                        color: #2a1f0e;
+                        text-align: right;
+                      "
+                    >
+                      Edição: {{ usuario.user }}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- ══ MANCHETE ══ -->
+            <tr>
+              <td
+                style="
+                  padding: 24px 44px;
+                  text-align: center;
+                  border-bottom: 1px solid #c8b898;
+                "
+              >
+                <!-- Banner urgente -->
+                <div
+                  style="
+                    display: inline-block;
+                    background-color: #1a1208;
+                    color: #faf3e0;
+                    font-size: 11px;
+                    font-weight: bold;
+                    letter-spacing: 3px;
+                    text-transform: uppercase;
+                    padding: 5px 18px;
+                    font-family: Georgia, serif;
+                    margin-bottom: 18px;
+                  "
+                >
+                  &#9873; Edição especial de tarefas pendentes
+                </div>
+
+                <h1
+                  style="
+                    font-family: Georgia, &quot;Times New Roman&quot;, serif;
+                    font-size: 34px;
+                    font-weight: 900;
+                    color: #1a1208;
+                    line-height: 1.2;
+                    margin: 0 0 10px;
+                  "
+                >
+                  {% if tarefas_pendentes|length == 1 %} Uma Tarefa Aguarda<br /><em
+                    >A Atenção do Ilustre Leitor</em
+                  >
+                  {% else %} {{ tarefas_pendentes|length }} Tarefas Aguardam<br /><em
+                    >A Atenção do Ilustre Leitor</em
+                  >
+                  {% endif %}
+                </h1>
+
+                <table
+                  width="60"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  align="center"
+                  style="margin: 14px auto"
+                >
+                  <tr>
+                    <td
+                      style="
+                        height: 2px;
+                        background-color: #1a1208;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                </table>
+
+                <p
+                  style="
+                    font-family: Georgia, serif;
+                    font-size: 15px;
+                    color: #2a1f0e;
+                    line-height: 1.85;
+                    margin: 0;
+                    font-style: italic;
+                  "
+                >
+                  &ldquo;Gentil leitor, segundo os registros desta gazeta, {% if
+                  tarefas_pendentes|length == 1 %} persiste em aberto um afazer
+                  de vossa responsabilidade. {% else %} persistem em aberto {{
+                  tarefas_pendentes|length }} afazeres de vossa
+                  responsabilidade. {% endif %} A demora em cumpri-los poderá
+                  acarretar dissabores futuros.&rdquo;
+                </p>
+              </td>
+            </tr>
+
+            <!-- ══ TAREFAS ══ -->
+            {% for tarefa in tarefas_pendentes %}
+            <tr>
+              <td
+                style="padding:{% if loop.last %}24px 44px{% else %}24px 44px 0{% endif %};"
+              >
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  {% if not loop.last %}
+                  <!-- Separador entre tarefas -->
+                  {% endif %}
+
+                  <!-- Label número + badge -->
+                  <tr>
+                    <td style="padding-bottom: 10px">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr valign="middle">
+                          <td
+                            style="
+                              font-size: 11px;
+                              font-weight: bold;
+                              letter-spacing: 3px;
+                              text-transform: uppercase;
+                              color: #6a5030;
+                              font-family: Georgia, serif;
+                            "
+                          >
+                            Tarefa N.&ordm; {{ loop.index }}
+                          </td>
+                          <td width="10">&nbsp;</td>
+                          <td
+                            style="background-color: #2a1f0e; padding: 2px 10px"
+                          >
+                            <span
+                              style="
+                                font-size: 10px;
+                                color: #faf3e0;
+                                letter-spacing: 2px;
+                                text-transform: uppercase;
+                                font-family: Georgia, serif;
+                              "
+                              >Pendente</span
+                            >
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+
+                  <!-- Título da tarefa -->
+                  <tr>
+                    <td style="padding-bottom: 10px">
+                      <h2
+                        style="
+                          font-family:
+                            Georgia, &quot;Times New Roman&quot;, serif;
+                          font-size: 22px;
+                          font-weight: bold;
+                          color: #1a1208;
+                          margin: 0;
+                          line-height: 1.3;
+                        "
+                      >
+                        {{ tarefa.tarefa }}
+                      </h2>
+                    </td>
+                  </tr>
+
+                  <!-- Descrição -->
+                  {% if tarefa.descricao_obj %}
+                  <tr>
+                    <td style="padding-bottom: 12px">
+                      <p
+                        style="
+                          font-family: Georgia, serif;
+                          font-size: 15px;
+                          color: #2a1f0e;
+                          line-height: 1.85;
+                          margin: 0;
+                        "
+                      >
+                        {{ tarefa.descricao_obj }}
+                      </p>
+                    </td>
+                  </tr>
+                  {% endif %}
+
+                  <!-- Data -->
+                  <tr>
+                    <td
+                      style="padding-bottom:{% if not loop.last %}22px{% else %}0{% endif %};"
+                    >
+                      <p
+                        style="
+                          font-family: Georgia, serif;
+                          font-size: 12px;
+                          color: #8a7050;
+                          font-style: italic;
+                          margin: 0;
+                        "
+                      >
+                        Registrada em {{ tarefa.created_at.strftime('%d/%m/%Y') }}
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Divisor entre tarefas -->
+                  {% if not loop.last %}
+                  <tr>
+                    <td style="padding-bottom: 22px">
+                      <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
+                      >
+                        <tr>
+                          <td
+                            style="
+                              height: 1px;
+                              background-color: #d8c898;
+                              font-size: 0;
+                              line-height: 0;
+                            "
+                          >
+                            &nbsp;
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  {% endif %}
+                </table>
+              </td>
+            </tr>
+            {% endfor %}
+
+            <!-- Separador pré-CTA -->
+            <tr>
+              <td style="padding: 0 44px">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td
+                      style="
+                        height: 1px;
+                        background-color: #c8b898;
+                        font-size: 0;
+                        line-height: 0;
+                      "
+                    >
+                      &nbsp;
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- ══ CTA ══ -->
+            <tr>
+              <td
+                style="
+                  padding: 28px 44px;
+                  text-align: center;
+                  border-bottom: 1px solid #c8b898;
+                "
+              >
+                <p
+                  style="
+                    font-family: Georgia, serif;
+                    font-size: 12px;
+                    color: #4a3a20;
+                    letter-spacing: 3px;
+                    text-transform: uppercase;
+                    margin: 0 0 16px;
+                  "
+                >
+                  &diams; Tome providências &diams;
+                </p>
+                <table
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  align="center"
+                >
+                  <tr>
+                    <td style="background-color: #1a1208; text-align: center">
+                      <a
+                        href="{{ url_app }}"
+                        target="_blank"
+                        style="
+                          font-family: Georgia, serif;
+                          font-size: 14px;
+                          font-weight: bold;
+                          color: #faf3e0;
+                          text-decoration: none;
+                          display: inline-block;
+                          padding: 14px 44px;
+                          letter-spacing: 2px;
+                        "
+                      >
+                        Aceder à Lista de Tarefas
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- ══ COLOPHON / RODAPÉ ══ -->
+            <tr>
+              <td style="padding: 20px 44px; text-align: center">
+                <p
+                  style="
+                    font-family: Georgia, serif;
+                    font-size: 18px;
+                    color: #8a7050;
+                    letter-spacing: 8px;
+                    margin: 0 0 12px;
+                  "
+                >
+                  &mdash; &#10022; &mdash;
+                </p>
+                <p
+                  style="
+                    font-family: Georgia, serif;
+                    font-size: 13px;
+                    color: #6a5a40;
+                    line-height: 1.9;
+                    margin: 0 0 10px;
+                    font-style: italic;
+                  "
+                >
+                  The To-be Gazette é publicada diariamente às 9h em prol dos
+                  assinantes que assim o solicitaram.<br />
+                  &copy; MMXXVI &middot; To-be list &middot; Todos os direitos
+                  reservados a seus respectivos donos.
+                </p>
+                <a
+                  href="{{ url_unsubscribe }}"
+                  style="
+                    font-family: Georgia, serif;
+                    font-size: 13px;
+                    color: #6a5a40;
+                    text-decoration: underline;
+                  "
+                >
+                  Cancelar assinatura desta gazette
+                </a>
+              </td>
+            </tr>
+          </table>
+          <!-- /Wrapper -->
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
