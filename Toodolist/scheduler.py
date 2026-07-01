@@ -45,7 +45,7 @@ def enviar_mensagem():
                 continue
 
             html = render_template(
-                "email_gazette.html",
+                "email/email_gazette.html",
                 usuario=usuario,
                 tarefas_pendentes=tarefas_pendentes,
                 data_hoje=datetime.now().strftime("%d/%m/%Y"),
