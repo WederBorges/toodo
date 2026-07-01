@@ -62,9 +62,7 @@ def enviar_mensagem():
             })
 
     
-# scheduler = BlockingScheduler()
-# job = scheduler.add_job(enviar_mensagem, 'cron', hour=8, minute=30)
+scheduler = BlockingScheduler()
+job = scheduler.add_job(enviar_mensagem, 'cron', hour=8, minute=30)
 
-# scheduler.start() 
-if __name__ == "__main__":
-    enviar_mensagem()
+scheduler.start() 
