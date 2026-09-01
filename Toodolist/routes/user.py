@@ -4,6 +4,7 @@ from models.models import User
 from sqlalchemy.orm import Session,selectinload
 from sqlalchemy import select
 from pwdlib import PasswordHash
+from extensions import limiter
 
 user_bp = Blueprint('user', __name__, url_prefix='/profile')
 password_hash = PasswordHash.recommended()
@@ -77,6 +78,7 @@ def enable_email():
                 
 @user_bp.route('/delete-account', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def delete_account():
     
     with current_app.Session() as session:
@@ -92,3 +94,5 @@ def delete_account():
                 session.commit()
                 flash("Conta deletada com sucesso !")
                 return redirect(url_for('auth.register'))
+            flash("Digite EXCLUIR para confirmar a exclusão da conta.")
+            return redirect(url_for('user.profile_user'))

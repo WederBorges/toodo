@@ -1,17 +1,17 @@
 from flask import (
-    Blueprint, 
-    redirect, 
-    render_template, 
-    request, 
-    current_app, 
-    url_for, 
+    Blueprint,
+    redirect,
+    render_template,
+    request,
+    current_app,
+    url_for,
     flash,
     get_flashed_messages
 )
 
 from flask_login import (
-    login_user, 
-    current_user, 
+    login_user,
+    current_user,
     login_required,
     logout_user
 )
@@ -19,6 +19,7 @@ from flask_login import (
 from pwdlib import PasswordHash
 from models.models import User
 from sqlalchemy import select
+from extensions import limiter
 
 
 
@@ -26,7 +27,9 @@ password_hash = PasswordHash.recommended()
 
 auth = Blueprint('auth', __name__, url_prefix='/auth')
 
+
 @auth.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per minute;30 per hour")
 def register():
     with current_app.Session() as session:
 
@@ -77,30 +80,22 @@ def register():
 
     return render_template('register.html')
 
-@auth.route('/current')
-@login_required
-def current():
-    return render_template('current.html')
-
 @auth.route('/login', methods=['GET', 'POST'])
+@limiter.limit("10 per minute;100 per hour")
 def login():
-    
+
     with current_app.Session() as session:
 
         if request.method == 'POST':
             nome = request.form.get("nome")
             senha = request.form.get("senha")
             remember = request.form.get("remember")
-            
-            user = session.scalar(select(User).where(User.user == nome))
-            if not user:
-                flash("Usuário incorreto ou não existe")
-                return redirect(url_for('auth.login'))
-            
-            
 
-            if not password_hash.verify(senha, user.password):
-                flash("Senha incorreta")
+            user = session.scalar(select(User).where(User.user == nome))
+            # Mensagem genérica em ambos os casos: evita enumeração de
+            # usuários existentes por diferença na resposta de erro.
+            if not user or not senha or not password_hash.verify(senha, user.password):
+                flash("Usuário ou senha incorretos")
                 return redirect(url_for('auth.login'))
             else:
                 if remember == "on":

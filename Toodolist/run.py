@@ -21,9 +21,10 @@ app = create_app(database_uri)
 
 if __name__ == '__main__':
 
+    debug = os.getenv("FLASK_DEBUG", "false").strip().lower() in ("1", "true", "yes")
 
     app.run(
         host="0.0.0.0",
-        port=int(os.getenv("PORT", 5000)), debug=True
+        port=int(os.getenv("PORT", 5000)), debug=debug
     )
 
