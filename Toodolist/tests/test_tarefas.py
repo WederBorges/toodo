@@ -72,6 +72,42 @@ def test_filter_by_pendentes(client, make_user, make_tarefa):
     assert b"Concluida aqui" not in response.data
 
 
+def test_filter_by_em_andamento(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Em andamento aqui", status="em_andamento")
+    make_tarefa(dono.id, tarefa="Pendente aqui", status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?filtro=em_andamento")
+
+    assert b"Em andamento aqui" in response.data
+    assert b"Pendente aqui" not in response.data
+
+
+def test_filter_by_aguardando_retorno(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Aguardando aqui", status="aguardando_retorno")
+    make_tarefa(dono.id, tarefa="Pendente aqui", status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?filtro=aguardando_retorno")
+
+    assert b"Aguardando aqui" in response.data
+    assert b"Pendente aqui" not in response.data
+
+
+def test_filter_by_canceladas(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Cancelada aqui", status="cancelado")
+    make_tarefa(dono.id, tarefa="Pendente aqui", status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?filtro=canceladas")
+
+    assert b"Cancelada aqui" in response.data
+    assert b"Pendente aqui" not in response.data
+
+
 def test_alterar_status_toggles(client, make_user, make_tarefa, get_tarefas):
     dono = make_user(nome="dono", senha="senha1234")
     tarefa = make_tarefa(dono.id, status="pendente")
@@ -85,6 +121,42 @@ def test_alterar_status_toggles(client, make_user, make_tarefa, get_tarefas):
     client.post(f"/tarefas/alterar-status/{tarefa.id}")
     tarefas = get_tarefas(dono.id)
     assert tarefas[0]["status"] == "pendente"
+
+
+def test_alterar_status_completes_from_any_open_status(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="aguardando_retorno")
+
+    login(client, "dono", "senha1234")
+    client.post(f"/tarefas/alterar-status/{tarefa.id}")
+
+    assert get_tarefas(dono.id)[0]["status"] == "concluido"
+
+
+def test_editar_tarefa_updates_status(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="pendente")
+
+    login(client, "dono", "senha1234")
+    client.post(
+        f"/tarefas/editar-tarefa/{tarefa.id}",
+        data={"tarefa": "Nome", "descricao": "Desc", "status": "aguardando_retorno"},
+    )
+
+    assert get_tarefas(dono.id)[0]["status"] == "aguardando_retorno"
+
+
+def test_editar_tarefa_ignores_invalid_status(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="pendente")
+
+    login(client, "dono", "senha1234")
+    client.post(
+        f"/tarefas/editar-tarefa/{tarefa.id}",
+        data={"tarefa": "Nome", "descricao": "Desc", "status": "status-forjado"},
+    )
+
+    assert get_tarefas(dono.id)[0]["status"] == "pendente"
 
 
 def test_excluir_tarefa_removes_it(client, make_user, make_tarefa, get_tarefas):

@@ -10,7 +10,7 @@ from sqlalchemy import event
 
 from app import create_app
 from database.conf import Base
-from models.models import Tarefas, User
+from models.models import Etapa, Tarefas, User
 
 password_hash = PasswordHash.recommended()
 
@@ -120,6 +120,37 @@ def get_tarefas(app):
                     "status": t.status,
                 }
                 for t in rows
+            ]
+
+    return _get
+
+
+@pytest.fixture()
+def make_etapa(app):
+    def _make(tarefa_id, descricao="Etapa", concluida=False):
+        with app.Session() as session:
+            etapa = Etapa(descricao=descricao, concluida=concluida, tarefa_id=tarefa_id)
+            session.add(etapa)
+            session.commit()
+            session.refresh(etapa)
+            session.expunge(etapa)
+        return etapa
+
+    return _make
+
+
+@pytest.fixture()
+def get_etapas(app):
+    from sqlalchemy import select
+
+    def _get(tarefa_id):
+        with app.Session() as session:
+            rows = session.scalars(
+                select(Etapa).where(Etapa.tarefa_id == tarefa_id)
+            ).all()
+            return [
+                {"id": e.id, "descricao": e.descricao, "concluida": e.concluida}
+                for e in rows
             ]
 
     return _get

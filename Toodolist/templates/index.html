@@ -143,12 +143,15 @@
 
   {# ─── Filtros ─── #}
   <style>
-    .filter-pill { display:inline-flex; gap:4px; padding:5px; border-radius:8px; background:#161B22; border:1px solid rgba(255,255,255,0.07); margin-bottom:16px; }
+    .filter-pill { display:inline-flex; flex-wrap:wrap; gap:4px; padding:5px; border-radius:8px; background:#161B22; border:1px solid rgba(255,255,255,0.07); margin-bottom:16px; }
     .filter-pill a { font-size:13px; font-weight:500; text-decoration:none; padding:7px 18px; border-radius:6px; color:#6E7681; transition:background .15s,color .15s; }
     .filter-pill a:hover { background:rgba(255,255,255,0.06); color:#E6EDF3; }
     .filter-pill a.f-all    { background:#005A8B; color:#fff; font-weight:600; }
     .filter-pill a.f-done   { background:rgba(46,160,67,0.18); color:#2EA043; font-weight:600; border:1px solid rgba(46,160,67,0.3); }
     .filter-pill a.f-todo   { background:rgba(210,153,34,0.18); color:#D29922; font-weight:600; border:1px solid rgba(210,153,34,0.3); }
+    .filter-pill a.f-progress  { background:rgba(88,166,255,0.18); color:#58A6FF; font-weight:600; border:1px solid rgba(88,166,255,0.3); }
+    .filter-pill a.f-waiting   { background:rgba(188,140,255,0.18); color:#BC8CFF; font-weight:600; border:1px solid rgba(188,140,255,0.3); }
+    .filter-pill a.f-cancelled { background:rgba(218,54,51,0.15); color:#DA3633; font-weight:600; border:1px solid rgba(218,54,51,0.3); }
     .tbl-btn { transition:filter .15s, box-shadow .15s; cursor:pointer; }
     .tbl-btn:hover { filter:brightness(1.3); box-shadow:0 2px 8px rgba(0,0,0,.25); }
     .tbl-btn:active { filter:brightness(0.9); }
@@ -161,13 +164,25 @@
        {% if filtro_atual == 'all' %}class="f-all"{% endif %}>
       Todas tarefas
     </a>
+    <a href="{{ url_for('tarefas.home', filtro='pendentes') }}"
+       {% if filtro_atual == 'pendentes' %}class="f-todo"{% endif %}>
+       Pendentes
+    </a>
+    <a href="{{ url_for('tarefas.home', filtro='em_andamento') }}"
+       {% if filtro_atual == 'em_andamento' %}class="f-progress"{% endif %}>
+       Em andamento
+    </a>
+    <a href="{{ url_for('tarefas.home', filtro='aguardando_retorno') }}"
+       {% if filtro_atual == 'aguardando_retorno' %}class="f-waiting"{% endif %}>
+       Aguardando retorno
+    </a>
     <a href="{{ url_for('tarefas.home', filtro='concluidas') }}"
        {% if filtro_atual == 'concluidas' %}class="f-done"{% endif %}>
        Concluídas
     </a>
-    <a href="{{ url_for('tarefas.home', filtro='pendentes') }}"
-       {% if filtro_atual == 'pendentes' %}class="f-todo"{% endif %}>
-       Pendentes
+    <a href="{{ url_for('tarefas.home', filtro='canceladas') }}"
+       {% if filtro_atual == 'canceladas' %}class="f-cancelled"{% endif %}>
+       Canceladas
     </a>
   </div>
 
@@ -192,20 +207,20 @@
             <td style="font-size:15px; font-weight:600;
                        {% if tarefa.status == 'concluido' %}text-decoration:line-through; color:#6E7681;{% else %}color:#E6EDF3;{% endif %}">
               {% if tarefa.tarefa %}{{ tarefa.tarefa }}{% else %}<span style="color:#484F58;">(sem nome)</span>{% endif %}
+              {% if tarefa.etapas %}
+                {% set etapas_ok = tarefa.etapas | selectattr('concluida') | list | length %}
+                <div style="font-size:11px; font-weight:500; color:#6E7681; margin-top:2px;">
+                  ☑ {{ etapas_ok }}/{{ tarefa.etapas | length }} etapas
+                </div>
+              {% endif %}
             </td>
             <td style="font-size:15px; color:#8B949E;">{{ tarefa.descricao_obj or '—' }}</td>
             <td>
-              {% if tarefa.status == 'concluido' %}
-                <span class="badge rounded-pill"
-                      style="background:rgba(46,160,67,0.15); color:#2EA043; font-size:11px; font-weight:600;">
-                  concluído
-                </span>
-              {% else %}
-                <span class="badge rounded-pill"
-                      style="background:rgba(210,153,34,0.15); color:#D29922; font-size:11px; font-weight:600;">
-                  pendente
-                </span>
-              {% endif %}
+              {% set badge = status_badges.get(tarefa.status, status_badges['pendente']) %}
+              <span class="badge rounded-pill"
+                    style="background:{{ badge.bg }}; color:{{ badge.color }}; font-size:11px; font-weight:600;">
+                {{ badge.label }}
+              </span>
             </td>
             <td class="font-monospace" style="font-size:15px; color:#484F58;">
               {{ tarefa.created_at.strftime('%d/%m/%Y') if tarefa.created_at else '' }}
@@ -213,7 +228,7 @@
             <td class="text-end">
               <div class="d-inline-flex gap-1">
 
-                {% if tarefa.status == 'pendente' %}
+                {% if tarefa.status != 'concluido' %}
                   <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}" class="d-inline">
                     <button type="submit" class="btn btn-sm tbl-btn"
                             style="background:rgba(46,160,67,0.1); border:1px solid rgba(46,160,67,0.22);
@@ -230,6 +245,13 @@
                     </button>
                   </form>
                 {% endif %}
+
+                <button type="button" class="btn btn-sm tbl-btn"
+                        style="background:rgba(0,192,204,0.08); border:1px solid rgba(0,192,204,0.2);
+                               color:#00C0CC; font-size:13px; font-weight:500; padding:5px 13px;"
+                        data-bs-toggle="modal" data-bs-target="#etapasModal{{ tarefa.id }}">
+                  Detalhar
+                </button>
 
                 <button type="button" class="btn btn-sm tbl-btn"
                         style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
@@ -282,6 +304,20 @@
                       <input name="descricao" class="form-control"
                              value="{{ tarefa.descricao_obj or '' }}">
                     </div>
+                    <div class="mb-2">
+                      <label class="form-label"
+                             style="font-size:11px; font-weight:600; text-transform:uppercase;
+                                    letter-spacing:0.06em; color:#8B949E;">
+                        Status
+                      </label>
+                      <select name="status" class="form-select">
+                        {% for chave, label in status_choices %}
+                          <option value="{{ chave }}" {% if tarefa.status == chave %}selected{% endif %}>
+                            {{ label }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
                   </div>
                   <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.07);">
                     <button type="button" class="btn btn-link" data-bs-dismiss="modal"
@@ -294,6 +330,65 @@
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+
+          {# ── Modal de etapas/anotações ── #}
+          <div class="modal fade" id="etapasModal{{ tarefa.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content" style="background:#161B22; border:1px solid rgba(255,255,255,0.07);">
+                <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+                  <h5 class="modal-title" style="font-size:15px; font-weight:600; color:#E6EDF3;">
+                    Etapas — {{ tarefa.tarefa or ('Tarefa #' ~ tarefa.id) }}
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  {% if tarefa.etapas %}
+                    <ul class="list-unstyled mb-3">
+                      {% for etapa in tarefa.etapas %}
+                        <li class="d-flex align-items-center justify-content-between gap-2 mb-2">
+                          <form method="post" action="{{ url_for('tarefas.alternar_etapa', etapa_id=etapa.id) }}"
+                                class="d-flex align-items-center gap-2 flex-grow-1 mb-0">
+                            <button type="submit" class="btn btn-sm p-0 border-0"
+                                    style="background:none; font-size:15px; line-height:1;
+                                           color:{% if etapa.concluida %}#2EA043{% else %}#6E7681{% endif %};">
+                              {% if etapa.concluida %}☑{% else %}☐{% endif %}
+                            </button>
+                            <span style="font-size:13px; text-align:left;
+                                         {% if etapa.concluida %}text-decoration:line-through; color:#6E7681;{% else %}color:#E6EDF3;{% endif %}">
+                              {{ etapa.descricao }}
+                            </span>
+                          </form>
+                          <form method="post" action="{{ url_for('tarefas.excluir_etapa', etapa_id=etapa.id) }}" class="mb-0">
+                            <button type="submit" class="btn btn-sm p-0 border-0"
+                                    style="background:none; color:#DA3633; font-size:12px;">
+                              remover
+                            </button>
+                          </form>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% else %}
+                    <p style="font-size:13px; color:#6E7681;">Nenhuma etapa cadastrada ainda.</p>
+                  {% endif %}
+
+                  <form method="post" action="{{ url_for('tarefas.adicionar_etapa', tarefa_id=tarefa.id) }}"
+                        class="d-flex gap-2 mb-0">
+                    <input name="descricao" class="form-control form-control-sm"
+                           placeholder="nova etapa..." required maxlength="300">
+                    <button type="submit" class="btn btn-primary btn-sm" style="white-space:nowrap;">
+                      Adicionar
+                    </button>
+                  </form>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.07);">
+                  <button type="button" class="btn btn-link" data-bs-dismiss="modal"
+                          style="color:#8B949E; font-size:13px;">
+                    Fechar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -317,4 +412,17 @@
   </div>
 
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var params = new URLSearchParams(window.location.search);
+    var openId = params.get('open_etapas');
+    if (openId) {
+      var modalEl = document.getElementById('etapasModal' + openId);
+      if (modalEl && window.bootstrap) {
+        new bootstrap.Modal(modalEl).show();
+      }
+    }
+  });
+</script>
 {% endblock %}

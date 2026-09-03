@@ -46,6 +46,30 @@ class Tarefas(Base):
                                                             nullable=False)
     responsavel: Mapped["User"] = relationship(back_populates="tarefas")
 
+    etapas: Mapped[List["Etapa"]] = relationship(
+        "Etapa",
+        back_populates='tarefa',
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="Etapa.id")
+
+
+class Etapa(Base):
+    """Subitem/anotação de uma tarefa (ex.: os passos para concluí-la)."""
+    __tablename__ = "etapas"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    descricao: Mapped[str] = mapped_column(String(300), nullable=False)
+    concluida: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=False), server_default=func.now())
+
+    tarefa_id: Mapped[int] = mapped_column(ForeignKey(
+                                            "tarefas.id",
+                                            ondelete="CASCADE",
+                                            name="fk_etapas_tarefa_id"),
+                                            nullable=False)
+    tarefa: Mapped["Tarefas"] = relationship(back_populates="etapas")
+
 
 class EmailToken(Base):
     """Token de uso único para confirmação de email e redefinição de senha.
