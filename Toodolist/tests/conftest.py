@@ -57,13 +57,20 @@ def client(app):
 
 @pytest.fixture()
 def make_user(app):
-    def _make(nome="usuarioteste", senha="senha1234", email=None, receber_mensagem=False):
+    def _make(
+        nome="usuarioteste",
+        senha="senha1234",
+        email=None,
+        receber_mensagem=False,
+        email_verified=True,
+    ):
         with app.Session() as session:
             user = User(
                 user=nome,
                 password=password_hash.hash(senha),
                 email=email,
                 receber_mensagem=receber_mensagem,
+                email_verified=email_verified,
             )
             session.add(user)
             session.commit()
@@ -116,6 +123,29 @@ def get_tarefas(app):
             ]
 
     return _get
+
+
+@pytest.fixture()
+def sent_emails(monkeypatch):
+    """Captures calls to routes.auth.send_email instead of hitting Resend."""
+    captured = []
+
+    def _fake_send(to, subject, html):
+        captured.append({"to": to, "subject": subject, "html": html})
+        return {"id": "fake-email-id"}
+
+    monkeypatch.setattr("routes.auth.send_email", _fake_send)
+    return captured
+
+
+def extract_link(html):
+    match = re.search(r'href="([^"]+)"', html)
+    assert match, "link não encontrado no email renderizado"
+    return match.group(1)
+
+
+def extract_token_from_url(url):
+    return url.rstrip("/").rsplit("/", 1)[-1]
 
 
 def login(client, nome, senha, remember=None):

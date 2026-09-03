@@ -86,7 +86,7 @@
                 Lembrar de mim
               </label>
             </div>
-            <a href="#" style="font-size:12px; color:#00C0CC; text-decoration:none; font-weight:500;">
+            <a href="{{ url_for('auth.forgot_password') }}" style="font-size:12px; color:#00C0CC; text-decoration:none; font-weight:500;">
               Esqueci a senha
             </a>
           </div>
@@ -106,6 +106,13 @@
       <a href="{{ url_for('auth.register') }}"
          style="color:#00C0CC; text-decoration:none; font-weight:600;">
         Registre-se
+      </a>
+    </p>
+    <p class="text-center mt-2" style="font-size:12px; color:#6E7681; margin:0;">
+      Não recebeu o email de confirmação?
+      <a href="{{ url_for('auth.resend_verification') }}"
+         style="color:#00C0CC; text-decoration:none; font-weight:600;">
+        Reenviar
       </a>
     </p>
 
