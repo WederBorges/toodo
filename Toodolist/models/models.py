@@ -37,6 +37,7 @@ class Tarefas(Base):
     tarefa: Mapped[str] = mapped_column(String(300))
     descricao_obj: Mapped[str] = mapped_column(VARCHAR(300))
     status: Mapped[str] = mapped_column(String(30))
+    prioridade: Mapped[str] = mapped_column(String(10), nullable=False, server_default="media")
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=False))
 
     responsavel_id: Mapped[Optional[int]] = mapped_column(ForeignKey(

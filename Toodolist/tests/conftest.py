@@ -85,13 +85,15 @@ def make_user(app):
 def make_tarefa(app):
     from datetime import datetime
 
-    def _make(responsavel_id, tarefa="Tarefa", descricao="Descricao", status="pendente"):
+    def _make(responsavel_id, tarefa="Tarefa", descricao="Descricao", status="pendente",
+              prioridade="media", created_at=None):
         with app.Session() as session:
             tarefa_db = Tarefas(
                 tarefa=tarefa,
                 descricao_obj=descricao,
                 status=status,
-                created_at=datetime.now(),
+                prioridade=prioridade,
+                created_at=created_at or datetime.now(),
                 responsavel_id=responsavel_id,
             )
             session.add(tarefa_db)
@@ -118,6 +120,7 @@ def get_tarefas(app):
                     "tarefa": t.tarefa,
                     "descricao_obj": t.descricao_obj,
                     "status": t.status,
+                    "prioridade": t.prioridade,
                 }
                 for t in rows
             ]

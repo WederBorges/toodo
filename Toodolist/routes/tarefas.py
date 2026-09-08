@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, flash,
 from datetime import datetime
 from flask import current_app
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, case
 from models.models import Tarefas, Etapa, User
 from flask_login import current_user, login_required
 
@@ -34,6 +34,28 @@ STATUS_BADGES = {
     "cancelado": {"label": "Cancelado", "bg": "rgba(218,54,51,0.15)", "color": "#DA3633"},
 }
 
+PRIORIDADE_CHOICES = [
+    ("baixa", "Baixa"),
+    ("media", "Média"),
+    ("alta", "Alta"),
+]
+PRIORIDADE_VALIDAS = {chave for chave, _ in PRIORIDADE_CHOICES}
+PRIORIDADE_ORDEM = {"baixa": 1, "media": 2, "alta": 3}
+
+PRIORIDADE_BADGES = {
+    "baixa": {"label": "Baixa", "bg": "rgba(88,166,255,0.15)", "color": "#58A6FF"},
+    "media": {"label": "Média", "bg": "rgba(210,153,34,0.15)", "color": "#D29922"},
+    "alta": {"label": "Alta", "bg": "rgba(218,54,51,0.15)", "color": "#DA3633"},
+}
+
+PRIORIDADE_RANK = case(
+    *[(Tarefas.prioridade == chave, valor) for chave, valor in PRIORIDADE_ORDEM.items()],
+    else_=0,
+)
+
+ORDENACAO_VALIDAS = {"data", "prioridade"}
+DIRECAO_VALIDAS = {"asc", "desc"}
+
 
 @tarefas_bp.route('/', methods=['GET', 'POST'])
 @login_required
@@ -45,6 +67,10 @@ def home():
 
         filtro = request.args.get("filtro")
         busca = request.args.get("q", "").strip()
+        ordenar = request.args.get("ordenar")
+        direcao = request.args.get("direcao", "desc")
+        if direcao not in DIRECAO_VALIDAS:
+            direcao = "desc"
 
         ##### Filtros #####
 
@@ -68,10 +94,18 @@ def home():
                 Tarefas.responsavel_id == current_user.id))).all())
 
 
+        if ordenar == "data":
+            criterio = Tarefas.created_at.asc() if direcao == "asc" else Tarefas.created_at.desc()
+        elif ordenar == "prioridade":
+            criterio = PRIORIDADE_RANK.asc() if direcao == "asc" else PRIORIDADE_RANK.desc()
+        else:
+            ordenar = None
+            criterio = Tarefas.status.desc()
+
         query = (select(Tarefas)
                  .options(selectinload(Tarefas.etapas))
                  .where(and_(*condicoes))
-                 .order_by(Tarefas.status.desc()))
+                 .order_by(criterio))
 
         database = session.scalars(query).all()
         total_tarefas = len(database)
@@ -81,12 +115,15 @@ def home():
         if request.method == 'POST':
             nome = request.form.get('tarefa')
             descricao = request.form.get('descricao')
-            status = 'pendente'
+            prioridade = request.form.get('prioridade')
+            if prioridade not in PRIORIDADE_VALIDAS:
+                prioridade = 'media'
 
             tarefa_db = Tarefas(
                 tarefa=nome,
                 descricao_obj=descricao,
                 status="pendente",
+                prioridade=prioridade,
                 created_at=agora,
                 responsavel_id = current_user.id
             )
@@ -108,7 +145,11 @@ def home():
                             percent=f"{percent:.2%}",
                             percent_value=percent*100,
                             status_choices=STATUS_CHOICES,
-                            status_badges=STATUS_BADGES)
+                            status_badges=STATUS_BADGES,
+                            prioridade_choices=PRIORIDADE_CHOICES,
+                            prioridade_badges=PRIORIDADE_BADGES,
+                            ordenar_atual=ordenar,
+                            direcao_atual=direcao)
 
 
 @tarefas_bp.route('/alterar-status/<int:indice>', methods=['POST'])
@@ -155,11 +196,14 @@ def editar_tarefa(indice):
             nome = request.form.get('tarefa')
             descricao = request.form.get('descricao')
             status = request.form.get('status')
+            prioridade = request.form.get('prioridade')
 
             tarefa_db.tarefa = nome
             tarefa_db.descricao_obj = descricao
             if status in STATUS_VALIDOS:
                 tarefa_db.status = status
+            if prioridade in PRIORIDADE_VALIDAS:
+                tarefa_db.prioridade = prioridade
             session.commit()
             return redirect(url_for('tarefas.home'))
 

@@ -122,7 +122,7 @@
           <input id="add-tarefa" name="tarefa" class="form-control"
                  placeholder="o que precisa ser feito?" required>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label for="add-descricao" class="form-label mb-1"
                  style="font-size:10px; font-weight:600; text-transform:uppercase;
                         letter-spacing:0.06em; color:#8B949E;">
@@ -130,6 +130,18 @@
           </label>
           <input id="add-descricao" name="descricao" class="form-control"
                  placeholder="detalhes (opcional)">
+        </div>
+        <div class="col-md-2">
+          <label for="add-prioridade" class="form-label mb-1"
+                 style="font-size:10px; font-weight:600; text-transform:uppercase;
+                        letter-spacing:0.06em; color:#8B949E;">
+            Prioridade
+          </label>
+          <select id="add-prioridade" name="prioridade" class="form-select">
+            {% for chave, label in prioridade_choices %}
+              <option value="{{ chave }}" {% if chave == 'media' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="col-md-2">
           <button type="submit" class="btn btn-primary w-100"
@@ -186,6 +198,27 @@
     </a>
   </div>
 
+  {# ─── Ordenação ─── #}
+  {% set base_args = request.args.to_dict() %}
+  <div class="filter-pill">
+    <a href="{{ url_for('tarefas.home', **dict(base_args, ordenar='data', direcao='desc')) }}"
+       {% if ordenar_atual == 'data' and direcao_atual == 'desc' %}class="f-all"{% endif %}>
+       Data ↓ (mais recente)
+    </a>
+    <a href="{{ url_for('tarefas.home', **dict(base_args, ordenar='data', direcao='asc')) }}"
+       {% if ordenar_atual == 'data' and direcao_atual == 'asc' %}class="f-all"{% endif %}>
+       Data ↑ (mais antiga)
+    </a>
+    <a href="{{ url_for('tarefas.home', **dict(base_args, ordenar='prioridade', direcao='desc')) }}"
+       {% if ordenar_atual == 'prioridade' and direcao_atual == 'desc' %}class="f-all"{% endif %}>
+       Prioridade ↓ (alta → baixa)
+    </a>
+    <a href="{{ url_for('tarefas.home', **dict(base_args, ordenar='prioridade', direcao='asc')) }}"
+       {% if ordenar_atual == 'prioridade' and direcao_atual == 'asc' %}class="f-all"{% endif %}>
+       Prioridade ↑ (baixa → alta)
+    </a>
+  </div>
+
   {# ─── Tabela de tarefas ─── #}
   <div class="card" style="border:1px solid rgba(255,255,255,0.07);">
     <div class="table-responsive">
@@ -196,6 +229,7 @@
             <th style="font-size:15px; letter-spacing:0.06em;">Tarefa</th>
             <th style="font-size:15px; letter-spacing:0.06em;">Descrição</th>
             <th style="font-size:15px; letter-spacing:0.06em;">Status</th>
+            <th style="font-size:15px; letter-spacing:0.06em;">Prioridade</th>
             <th style="font-size:15px; letter-spacing:0.06em;">Data</th>
             <th class="text-end" style="min-width:260px; font-size:15px; letter-spacing:0.06em;">Ações</th>
           </tr>
@@ -220,6 +254,13 @@
               <span class="badge rounded-pill"
                     style="background:{{ badge.bg }}; color:{{ badge.color }}; font-size:11px; font-weight:600;">
                 {{ badge.label }}
+              </span>
+            </td>
+            <td>
+              {% set pbadge = prioridade_badges.get(tarefa.prioridade, prioridade_badges['media']) %}
+              <span class="badge rounded-pill"
+                    style="background:{{ pbadge.bg }}; color:{{ pbadge.color }}; font-size:11px; font-weight:600;">
+                {{ pbadge.label }}
               </span>
             </td>
             <td class="font-monospace" style="font-size:15px; color:#484F58;">
@@ -318,6 +359,20 @@
                         {% endfor %}
                       </select>
                     </div>
+                    <div class="mb-2">
+                      <label class="form-label"
+                             style="font-size:11px; font-weight:600; text-transform:uppercase;
+                                    letter-spacing:0.06em; color:#8B949E;">
+                        Prioridade
+                      </label>
+                      <select name="prioridade" class="form-select">
+                        {% for chave, label in prioridade_choices %}
+                          <option value="{{ chave }}" {% if tarefa.prioridade == chave %}selected{% endif %}>
+                            {{ label }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
                   </div>
                   <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.07);">
                     <button type="button" class="btn btn-link" data-bs-dismiss="modal"
@@ -395,7 +450,7 @@
 
         {% else %}
           <tr>
-            <td colspan="6" class="text-center py-5" style="color:#484F58; font-size:14px;">
+            <td colspan="7" class="text-center py-5" style="color:#484F58; font-size:14px;">
               {% if filtro_atual == 'concluidas' %}
                 Nenhuma tarefa concluída ainda.
               {% elif filtro_atual == 'pendentes' %}

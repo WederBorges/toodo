@@ -226,6 +226,110 @@ def test_cannot_edit_another_users_tarefa(client, make_user, make_tarefa, get_ta
     assert tarefas[0]["tarefa"] == "Original"
 
 
+def test_create_tarefa_with_prioridade(client, make_user, get_tarefas):
+    user = make_user(nome="dono", senha="senha1234")
+    login(client, "dono", "senha1234")
+
+    client.post(
+        "/tarefas/",
+        data={"tarefa": "Tarefa urgente", "descricao": "x", "prioridade": "alta"},
+        follow_redirects=True,
+    )
+
+    tarefas = get_tarefas(user.id)
+    assert tarefas[0]["prioridade"] == "alta"
+
+
+def test_create_tarefa_defaults_to_media_prioridade(client, make_user, get_tarefas):
+    user = make_user(nome="dono", senha="senha1234")
+    login(client, "dono", "senha1234")
+
+    client.post(
+        "/tarefas/",
+        data={"tarefa": "Tarefa qualquer", "descricao": "x"},
+        follow_redirects=True,
+    )
+
+    tarefas = get_tarefas(user.id)
+    assert tarefas[0]["prioridade"] == "media"
+
+
+def test_create_tarefa_ignores_invalid_prioridade(client, make_user, get_tarefas):
+    user = make_user(nome="dono", senha="senha1234")
+    login(client, "dono", "senha1234")
+
+    client.post(
+        "/tarefas/",
+        data={"tarefa": "Tarefa qualquer", "descricao": "x", "prioridade": "urgentissima"},
+        follow_redirects=True,
+    )
+
+    tarefas = get_tarefas(user.id)
+    assert tarefas[0]["prioridade"] == "media"
+
+
+def test_editar_tarefa_updates_prioridade(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, prioridade="baixa")
+
+    login(client, "dono", "senha1234")
+    client.post(
+        f"/tarefas/editar-tarefa/{tarefa.id}",
+        data={"tarefa": "Nome", "descricao": "Desc", "status": "pendente", "prioridade": "alta"},
+    )
+
+    assert get_tarefas(dono.id)[0]["prioridade"] == "alta"
+
+
+def test_editar_tarefa_ignores_invalid_prioridade(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, prioridade="baixa")
+
+    login(client, "dono", "senha1234")
+    client.post(
+        f"/tarefas/editar-tarefa/{tarefa.id}",
+        data={"tarefa": "Nome", "descricao": "Desc", "status": "pendente", "prioridade": "forjada"},
+    )
+
+    assert get_tarefas(dono.id)[0]["prioridade"] == "baixa"
+
+
+def test_ordenar_por_data(client, make_user, make_tarefa):
+    from datetime import datetime, timedelta
+
+    dono = make_user(nome="dono", senha="senha1234")
+    agora = datetime.now()
+    make_tarefa(dono.id, tarefa="Mais antiga", created_at=agora - timedelta(days=2))
+    make_tarefa(dono.id, tarefa="Mais recente", created_at=agora)
+
+    login(client, "dono", "senha1234")
+
+    response = client.get("/tarefas/?ordenar=data&direcao=asc")
+    body = response.data.decode()
+    assert body.index("Mais antiga") < body.index("Mais recente")
+
+    response = client.get("/tarefas/?ordenar=data&direcao=desc")
+    body = response.data.decode()
+    assert body.index("Mais recente") < body.index("Mais antiga")
+
+
+def test_ordenar_por_prioridade(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Tarefa baixa", prioridade="baixa")
+    make_tarefa(dono.id, tarefa="Tarefa alta", prioridade="alta")
+    make_tarefa(dono.id, tarefa="Tarefa media", prioridade="media")
+
+    login(client, "dono", "senha1234")
+
+    response = client.get("/tarefas/?ordenar=prioridade&direcao=desc")
+    body = response.data.decode()
+    assert body.index("Tarefa alta") < body.index("Tarefa media") < body.index("Tarefa baixa")
+
+    response = client.get("/tarefas/?ordenar=prioridade&direcao=asc")
+    body = response.data.decode()
+    assert body.index("Tarefa baixa") < body.index("Tarefa media") < body.index("Tarefa alta")
+
+
 def test_anonymous_cannot_mutate_tarefas(client, make_user, make_tarefa, get_tarefas):
     dono = make_user(nome="dono", senha="senha1234")
     tarefa = make_tarefa(dono.id, status="pendente")

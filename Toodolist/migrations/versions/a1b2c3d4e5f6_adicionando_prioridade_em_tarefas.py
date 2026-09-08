@@ -1,0 +1,30 @@
+"""Adicionando coluna 'prioridade' em tarefas
+
+Revision ID: a1b2c3d4e5f6
+Revises: 9681bf3a0dab
+Create Date: 2026-09-08 00:00:00.000000
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = 'a1b2c3d4e5f6'
+down_revision: Union[str, Sequence[str], None] = '9681bf3a0dab'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema."""
+    with op.batch_alter_table('tarefas', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('prioridade', sa.String(length=10), server_default='media', nullable=False))
+
+
+def downgrade() -> None:
+    """Downgrade schema."""
+    with op.batch_alter_table('tarefas', schema=None) as batch_op:
+        batch_op.drop_column('prioridade')
