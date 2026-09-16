@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, flash,
 from datetime import datetime
 from flask import current_app
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import select, and_, case
+from sqlalchemy import select, and_, case, func
 from models.models import Tarefas, Etapa, User
 from flask_login import current_user, login_required
 
@@ -111,6 +111,12 @@ def home():
                 Tarefas.fixada.is_(True),
                 Tarefas.responsavel_id == current_user.id))).all())
 
+        status_counts = dict(session.execute(
+            select(Tarefas.status, func.count())
+            .where(Tarefas.responsavel_id == current_user.id)
+            .group_by(Tarefas.status)).all())
+        total_geral = sum(status_counts.values())
+
 
         if ordenar == "data":
             criterio = Tarefas.created_at.asc() if direcao == "asc" else Tarefas.created_at.desc()
@@ -152,7 +158,7 @@ def home():
             session.refresh(tarefa_db)
 
 
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
 
     return render_template('index.html',
 
@@ -161,6 +167,8 @@ def home():
                             pendente=pendente,
                             concluida=concluida,
                             fixadas_total=fixadas_total,
+                            status_counts=status_counts,
+                            total_geral=total_geral,
                             percent=f"{percent:.2%}",
                             percent_value=percent*100,
                             status_choices=STATUS_CHOICES,
@@ -181,13 +189,13 @@ def alterar_status(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
         if tarefa_db.status == None or tarefa_db.status != 'concluido':
             tarefa_db.status = 'concluido'
         else:
             tarefa_db.status = 'pendente'
         session.commit()
-        return redirect(url_for('tarefas.home'))
+        return redirect(url_for('tarefas.home', **request.args))
 
 
 @tarefas_bp.route('/fixar-tarefa/<int:indice>', methods=['POST'])
@@ -198,10 +206,10 @@ def fixar_tarefa(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
         tarefa_db.fixada = not tarefa_db.fixada
         session.commit()
-        return redirect(url_for('tarefas.home'))
+        return redirect(url_for('tarefas.home', **request.args))
 
 
 @tarefas_bp.route('/excluir-tarefa/<int:indice>', methods=['POST'])
@@ -212,10 +220,10 @@ def excluir_tarefa(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
         session.delete(tarefa_db)
         session.commit()
-        return redirect(url_for('tarefas.home'))
+        return redirect(url_for('tarefas.home', **request.args))
 
 
 @tarefas_bp.route('/editar-tarefa/<int:indice>', methods=['POST'])
@@ -226,7 +234,7 @@ def editar_tarefa(indice):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
         if request.method == 'POST':
             nome = request.form.get('tarefa')
             descricao = request.form.get('descricao')
@@ -240,7 +248,7 @@ def editar_tarefa(indice):
             if prioridade in PRIORIDADE_VALIDAS:
                 tarefa_db.prioridade = prioridade
             session.commit()
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
 
 
 @tarefas_bp.route('/adicionar-etapa/<int:tarefa_id>', methods=['POST'])
@@ -251,7 +259,7 @@ def adicionar_etapa(tarefa_id):
         tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == tarefa_id, Tarefas.responsavel_id == current_user.id)))
         if not tarefa_db:
             flash("Tarefa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
 
         descricao = (request.form.get('descricao') or '').strip()
         if descricao:
@@ -259,7 +267,7 @@ def adicionar_etapa(tarefa_id):
             session.add(etapa)
             session.commit()
 
-        return redirect(url_for('tarefas.home', open_etapas=tarefa_id))
+        return redirect(url_for('tarefas.home', **dict(request.args, open_etapas=tarefa_id)))
 
 
 @tarefas_bp.route('/alternar-etapa/<int:etapa_id>', methods=['POST'])
@@ -276,12 +284,12 @@ def alternar_etapa(etapa_id):
         )
         if not etapa:
             flash("Etapa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
 
         etapa.concluida = not etapa.concluida
         tarefa_id = etapa.tarefa_id
         session.commit()
-        return redirect(url_for('tarefas.home', open_etapas=tarefa_id))
+        return redirect(url_for('tarefas.home', **dict(request.args, open_etapas=tarefa_id)))
 
 
 @tarefas_bp.route('/excluir-etapa/<int:etapa_id>', methods=['POST'])
@@ -298,9 +306,9 @@ def excluir_etapa(etapa_id):
         )
         if not etapa:
             flash("Etapa inexistente")
-            return redirect(url_for('tarefas.home'))
+            return redirect(url_for('tarefas.home', **request.args))
 
         tarefa_id = etapa.tarefa_id
         session.delete(etapa)
         session.commit()
-        return redirect(url_for('tarefas.home', open_etapas=tarefa_id))
+        return redirect(url_for('tarefas.home', **dict(request.args, open_etapas=tarefa_id)))

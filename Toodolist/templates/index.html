@@ -20,6 +20,11 @@
     {% endwith %}
   {% endblock %}
 
+  {# base_args carrega todos os filtros/ordenação já aplicados na URL, para
+     que ações (concluir, fixar, editar, excluir, etapas, nova tarefa) e
+     pills de filtro preservem a visão atual em vez de voltar para "Todas". #}
+  {% set base_args = request.args.to_dict() %}
+
   {# ─── Stats ─── #}
   <div class="row g-3 mb-4">
 
@@ -132,7 +137,7 @@
       <span style="font-size:13px; font-weight:600; color:#E6EDF3;">+ Nova tarefa</span>
     </div>
     <div class="card-body py-3 px-3">
-      <form method="post" action="{{ url_for('tarefas.home') }}" class="row g-2 align-items-end">
+      <form method="post" action="{{ url_for('tarefas.home', **base_args) }}" class="row g-2 align-items-end">
         <div class="col-md-4">
           <label for="add-tarefa" class="form-label mb-1"
                  style="font-size:10px; font-weight:600; text-transform:uppercase;
@@ -186,6 +191,8 @@
     .filter-pill a.f-cancelled { background:rgba(218,54,51,0.15); color:#DA3633; font-weight:600; border:1px solid rgba(218,54,51,0.3); }
     .filter-pill a.f-pinned { background:rgba(218,54,51,0.18); color:#FF6B6B; font-weight:600; border:1px solid rgba(218,54,51,0.35); }
     .filter-pill .pill-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:#484F58; padding:7px 4px 7px 10px; align-self:center; }
+    .filter-pill a .pill-count { display:inline-block; min-width:17px; padding:0 5px; margin-left:6px; font-size:10px; font-weight:700; line-height:17px; text-align:center; border-radius:9px; background:rgba(255,255,255,0.14); color:inherit; vertical-align:middle; }
+    .filter-pill a:not([class]) .pill-count { background:rgba(255,255,255,0.08); }
     .tbl-btn { transition:filter .15s, box-shadow .15s; cursor:pointer; }
     .tbl-btn:hover { filter:brightness(1.3); box-shadow:0 2px 8px rgba(0,0,0,.25); }
     .tbl-btn:active { filter:brightness(0.9); }
@@ -195,11 +202,6 @@
     tr.tarefa-fixada:hover { background:rgba(218,54,51,0.13) !important; }
   </style>
 
-  {# base_args carrega todos os filtros/ordenação já aplicados na URL, para
-     que cada pill altere apenas a própria dimensão e preserve as demais —
-     status, prioridade, "somente fixadas", busca e ordenação são
-     combináveis entre si. #}
-  {% set base_args = request.args.to_dict() %}
   {% macro filter_url(remove=[]) %}{% set args = dict(base_args) %}{% for key in remove %}{% set _ = args.pop(key, None) %}{% endfor %}{% set _ = args.update(kwargs) %}{{ url_for('tarefas.home', **args) }}{% endmacro %}
 
   {% set filtro_atual = request.args.get('filtro', 'all') %}
@@ -207,27 +209,27 @@
     <span class="pill-label">Status</span>
     <a href="{{ filter_url(remove=['filtro']) }}"
        {% if filtro_atual == 'all' %}class="f-all"{% endif %}>
-      Todas
+      Todas <span class="pill-count">{{ total_geral }}</span>
     </a>
     <a href="{{ filter_url(filtro='pendentes') }}"
        {% if filtro_atual == 'pendentes' %}class="f-todo"{% endif %}>
-       Pendentes
+       Pendentes <span class="pill-count">{{ status_counts.get('pendente', 0) }}</span>
     </a>
     <a href="{{ filter_url(filtro='em_andamento') }}"
        {% if filtro_atual == 'em_andamento' %}class="f-progress"{% endif %}>
-       Em andamento
+       Em andamento <span class="pill-count">{{ status_counts.get('em_andamento', 0) }}</span>
     </a>
     <a href="{{ filter_url(filtro='aguardando_retorno') }}"
        {% if filtro_atual == 'aguardando_retorno' %}class="f-waiting"{% endif %}>
-       Aguardando retorno
+       Aguardando retorno <span class="pill-count">{{ status_counts.get('aguardando_retorno', 0) }}</span>
     </a>
     <a href="{{ filter_url(filtro='concluidas') }}"
        {% if filtro_atual == 'concluidas' %}class="f-done"{% endif %}>
-       Concluídas
+       Concluídas <span class="pill-count">{{ status_counts.get('concluido', 0) }}</span>
     </a>
     <a href="{{ filter_url(filtro='canceladas') }}"
        {% if filtro_atual == 'canceladas' %}class="f-cancelled"{% endif %}>
-       Canceladas
+       Canceladas <span class="pill-count">{{ status_counts.get('cancelado', 0) }}</span>
     </a>
   </div>
 
@@ -336,7 +338,7 @@
               <div class="d-inline-flex gap-1">
 
                 {% if tarefa.status != 'concluido' %}
-                  <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}" class="d-inline">
+                  <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id, **base_args) }}" class="d-inline">
                     <button type="submit" class="btn btn-sm tbl-btn"
                             style="background:rgba(46,160,67,0.1); border:1px solid rgba(46,160,67,0.22);
                                    color:#2EA043; font-size:13px; font-weight:600; padding:5px 13px;">
@@ -344,7 +346,7 @@
                     </button>
                   </form>
                 {% else %}
-                  <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id) }}" class="d-inline">
+                  <form method="post" action="{{ url_for('tarefas.alterar_status', indice=tarefa.id, **base_args) }}" class="d-inline">
                     <button type="submit" class="btn btn-sm tbl-btn"
                             style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09);
                                    color:#8B949E; font-size:13px; font-weight:500; padding:5px 13px;">
@@ -353,7 +355,7 @@
                   </form>
                 {% endif %}
 
-                <form method="post" action="{{ url_for('tarefas.fixar_tarefa', indice=tarefa.id) }}" class="d-inline">
+                <form method="post" action="{{ url_for('tarefas.fixar_tarefa', indice=tarefa.id, **base_args) }}" class="d-inline">
                   <button type="submit" class="btn btn-sm tbl-btn"
                           title="{% if tarefa.fixada %}Desafixar tarefa{% else %}Fixar como prioritária{% endif %}"
                           style="{% if tarefa.fixada %}background:rgba(218,54,51,0.18); border:1px solid rgba(218,54,51,0.4); color:#FF6B6B;{% else %}background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09); color:#8B949E;{% endif %}
@@ -376,7 +378,7 @@
                   Editar
                 </button>
 
-                <form method="post" action="{{ url_for('tarefas.excluir_tarefa', indice=tarefa.id) }}"
+                <form method="post" action="{{ url_for('tarefas.excluir_tarefa', indice=tarefa.id, **base_args) }}"
                       class="d-inline"
                       onsubmit="return confirm('Excluir esta tarefa?');">
                   <button type="submit" class="btn btn-sm tbl-btn"
@@ -394,7 +396,7 @@
           <div class="modal fade" id="editModal{{ tarefa.id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content" style="background:#161B22; border:1px solid rgba(255,255,255,0.07);">
-                <form method="post" action="{{ url_for('tarefas.editar_tarefa', indice=tarefa.id) }}">
+                <form method="post" action="{{ url_for('tarefas.editar_tarefa', indice=tarefa.id, **base_args) }}">
                   <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.07);">
                     <h5 class="modal-title" style="font-size:15px; font-weight:600; color:#E6EDF3;">
                       Editar tarefa #{{ tarefa.id }}
@@ -479,7 +481,7 @@
                     <ul class="list-unstyled mb-3">
                       {% for etapa in tarefa.etapas %}
                         <li class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                          <form method="post" action="{{ url_for('tarefas.alternar_etapa', etapa_id=etapa.id) }}"
+                          <form method="post" action="{{ url_for('tarefas.alternar_etapa', etapa_id=etapa.id, **base_args) }}"
                                 class="d-flex align-items-center gap-2 flex-grow-1 mb-0">
                             <button type="submit" class="btn btn-sm p-0 border-0"
                                     style="background:none; font-size:15px; line-height:1;
@@ -491,7 +493,7 @@
                               {{ etapa.descricao }}
                             </span>
                           </form>
-                          <form method="post" action="{{ url_for('tarefas.excluir_etapa', etapa_id=etapa.id) }}" class="mb-0">
+                          <form method="post" action="{{ url_for('tarefas.excluir_etapa', etapa_id=etapa.id, **base_args) }}" class="mb-0">
                             <button type="submit" class="btn btn-sm p-0 border-0"
                                     style="background:none; color:#DA3633; font-size:12px;">
                               remover
@@ -504,7 +506,7 @@
                     <p style="font-size:13px; color:#6E7681;">Nenhuma etapa cadastrada ainda.</p>
                   {% endif %}
 
-                  <form method="post" action="{{ url_for('tarefas.adicionar_etapa', tarefa_id=tarefa.id) }}"
+                  <form method="post" action="{{ url_for('tarefas.adicionar_etapa', tarefa_id=tarefa.id, **base_args) }}"
                         class="d-flex gap-2 mb-0">
                     <input name="descricao" class="form-control form-control-sm"
                            placeholder="nova etapa..." required maxlength="300">

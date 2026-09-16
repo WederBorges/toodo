@@ -405,6 +405,77 @@ def test_tarefa_fixada_aparece_primeiro_independente_da_ordenacao(client, make_u
     assert body.index("Fixada antiga") < body.index("Normal recente")
 
 
+def test_status_pills_show_counts_per_status(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="P1", status="pendente")
+    make_tarefa(dono.id, tarefa="P2", status="pendente")
+    make_tarefa(dono.id, tarefa="C1", status="concluido")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/")
+    body = response.data.decode()
+
+    assert "pill-count" in body
+    pendentes_idx = body.index("Pendentes <span")
+    assert ">2<" in body[pendentes_idx:pendentes_idx + 100]
+
+
+def test_alterar_status_preserves_active_filter(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.post(
+        f"/tarefas/alterar-status/{tarefa.id}?filtro=pendentes",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "filtro=pendentes" in response.headers["Location"]
+
+
+def test_fixar_tarefa_preserves_active_filter_and_ordering(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.post(
+        f"/tarefas/fixar-tarefa/{tarefa.id}?filtro=pendentes&ordenar=data&direcao=asc",
+        follow_redirects=False,
+    )
+
+    location = response.headers["Location"]
+    assert "filtro=pendentes" in location
+    assert "ordenar=data" in location
+    assert "direcao=asc" in location
+
+
+def test_excluir_tarefa_preserves_active_filter(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="concluido")
+
+    login(client, "dono", "senha1234")
+    response = client.post(
+        f"/tarefas/excluir-tarefa/{tarefa.id}?filtro=concluidas",
+        follow_redirects=False,
+    )
+
+    assert "filtro=concluidas" in response.headers["Location"]
+    assert get_tarefas(dono.id) == []
+
+
+def test_form_actions_carry_current_filters(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id, status="pendente")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?filtro=pendentes&ordenar=data&direcao=asc")
+    body = response.data.decode()
+
+    assert f"/tarefas/alterar-status/{tarefa.id}?filtro=pendentes" in body
+    assert f"/tarefas/excluir-tarefa/{tarefa.id}?filtro=pendentes" in body
+
+
 def test_anonymous_cannot_mutate_tarefas(client, make_user, make_tarefa, get_tarefas):
     dono = make_user(nome="dono", senha="senha1234")
     tarefa = make_tarefa(dono.id, status="pendente")
