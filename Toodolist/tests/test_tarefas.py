@@ -330,6 +330,81 @@ def test_ordenar_por_prioridade(client, make_user, make_tarefa):
     assert body.index("Tarefa baixa") < body.index("Tarefa media") < body.index("Tarefa alta")
 
 
+def test_filter_by_prioridade(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Tarefa alta", prioridade="alta")
+    make_tarefa(dono.id, tarefa="Tarefa baixa", prioridade="baixa")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?prioridade=alta")
+
+    assert b"Tarefa alta" in response.data
+    assert b"Tarefa baixa" not in response.data
+
+
+def test_filter_by_status_and_prioridade_combined(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Pendente alta", status="pendente", prioridade="alta")
+    make_tarefa(dono.id, tarefa="Pendente baixa", status="pendente", prioridade="baixa")
+    make_tarefa(dono.id, tarefa="Concluida alta", status="concluido", prioridade="alta")
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?filtro=pendentes&prioridade=alta")
+
+    assert b"Pendente alta" in response.data
+    assert b"Pendente baixa" not in response.data
+    assert b"Concluida alta" not in response.data
+
+
+def test_fixar_tarefa_toggles(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    tarefa = make_tarefa(dono.id)
+
+    login(client, "dono", "senha1234")
+    client.post(f"/tarefas/fixar-tarefa/{tarefa.id}")
+
+    assert get_tarefas(dono.id)[0]["fixada"] is True
+
+    client.post(f"/tarefas/fixar-tarefa/{tarefa.id}")
+    assert get_tarefas(dono.id)[0]["fixada"] is False
+
+
+def test_cannot_fixar_another_users_tarefa(client, make_user, make_tarefa, get_tarefas):
+    dono = make_user(nome="dono", senha="senha1234")
+    atacante = make_user(nome="atacante", senha="senha1234")
+    tarefa = make_tarefa(dono.id)
+
+    login(client, "atacante", "senha1234")
+    response = client.post(f"/tarefas/fixar-tarefa/{tarefa.id}", follow_redirects=True)
+
+    assert b"Tarefa inexistente" in response.data
+    assert get_tarefas(dono.id)[0]["fixada"] is False
+
+
+def test_filter_by_fixadas(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Fixada aqui", fixada=True)
+    make_tarefa(dono.id, tarefa="Solta aqui", fixada=False)
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?fixadas=1")
+
+    assert b"Fixada aqui" in response.data
+    assert b"Solta aqui" not in response.data
+
+
+def test_tarefa_fixada_aparece_primeiro_independente_da_ordenacao(client, make_user, make_tarefa):
+    dono = make_user(nome="dono", senha="senha1234")
+    make_tarefa(dono.id, tarefa="Normal recente")
+    make_tarefa(dono.id, tarefa="Fixada antiga", fixada=True)
+
+    login(client, "dono", "senha1234")
+    response = client.get("/tarefas/?ordenar=data&direcao=desc")
+    body = response.data.decode()
+
+    assert body.index("Fixada antiga") < body.index("Normal recente")
+
+
 def test_anonymous_cannot_mutate_tarefas(client, make_user, make_tarefa, get_tarefas):
     dono = make_user(nome="dono", senha="senha1234")
     tarefa = make_tarefa(dono.id, status="pendente")

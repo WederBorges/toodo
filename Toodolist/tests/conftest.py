@@ -86,13 +86,14 @@ def make_tarefa(app):
     from datetime import datetime
 
     def _make(responsavel_id, tarefa="Tarefa", descricao="Descricao", status="pendente",
-              prioridade="media", created_at=None):
+              prioridade="media", created_at=None, fixada=False):
         with app.Session() as session:
             tarefa_db = Tarefas(
                 tarefa=tarefa,
                 descricao_obj=descricao,
                 status=status,
                 prioridade=prioridade,
+                fixada=fixada,
                 created_at=created_at or datetime.now(),
                 responsavel_id=responsavel_id,
             )
@@ -121,6 +122,7 @@ def get_tarefas(app):
                     "descricao_obj": t.descricao_obj,
                     "status": t.status,
                     "prioridade": t.prioridade,
+                    "fixada": t.fixada,
                 }
                 for t in rows
             ]

@@ -38,6 +38,7 @@ class Tarefas(Base):
     descricao_obj: Mapped[str] = mapped_column(VARCHAR(300))
     status: Mapped[str] = mapped_column(String(30))
     prioridade: Mapped[str] = mapped_column(String(10), nullable=False, server_default="media")
+    fixada: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=False))
 
     responsavel_id: Mapped[Optional[int]] = mapped_column(ForeignKey(

@@ -66,6 +66,8 @@ def home():
         condicoes = [Tarefas.responsavel_id == current_user.id]
 
         filtro = request.args.get("filtro")
+        prioridade_filtro = request.args.get("prioridade")
+        fixadas_filtro = request.args.get("fixadas") == "1"
         busca = request.args.get("q", "").strip()
         ordenar = request.args.get("ordenar")
         direcao = request.args.get("direcao", "desc")
@@ -73,12 +75,22 @@ def home():
             direcao = "desc"
 
         ##### Filtros #####
+        # Todos os filtros abaixo são combináveis entre si: busca, status,
+        # prioridade e "somente fixadas" se somam na mesma consulta.
 
         if busca:
             condicoes.append(Tarefas.tarefa.like(f"%{busca}%"))
 
         if filtro in STATUS_FILTROS:
             condicoes.append(Tarefas.status == STATUS_FILTROS[filtro])
+
+        if prioridade_filtro in PRIORIDADE_VALIDAS:
+            condicoes.append(Tarefas.prioridade == prioridade_filtro)
+        else:
+            prioridade_filtro = None
+
+        if fixadas_filtro:
+            condicoes.append(Tarefas.fixada.is_(True))
 
         ##### Contadores #####
         pendente = len(session.scalars(
@@ -93,6 +105,12 @@ def home():
                 Tarefas.status=="concluido",
                 Tarefas.responsavel_id == current_user.id))).all())
 
+        fixadas_total = len(session.scalars(
+            select(Tarefas)
+            .where(and_(
+                Tarefas.fixada.is_(True),
+                Tarefas.responsavel_id == current_user.id))).all())
+
 
         if ordenar == "data":
             criterio = Tarefas.created_at.asc() if direcao == "asc" else Tarefas.created_at.desc()
@@ -105,7 +123,7 @@ def home():
         query = (select(Tarefas)
                  .options(selectinload(Tarefas.etapas))
                  .where(and_(*condicoes))
-                 .order_by(criterio))
+                 .order_by(Tarefas.fixada.desc(), criterio))
 
         database = session.scalars(query).all()
         total_tarefas = len(database)
@@ -142,6 +160,7 @@ def home():
                             total_tarefas=total_tarefas,
                             pendente=pendente,
                             concluida=concluida,
+                            fixadas_total=fixadas_total,
                             percent=f"{percent:.2%}",
                             percent_value=percent*100,
                             status_choices=STATUS_CHOICES,
@@ -149,7 +168,9 @@ def home():
                             prioridade_choices=PRIORIDADE_CHOICES,
                             prioridade_badges=PRIORIDADE_BADGES,
                             ordenar_atual=ordenar,
-                            direcao_atual=direcao)
+                            direcao_atual=direcao,
+                            prioridade_atual=prioridade_filtro,
+                            fixadas_atual=fixadas_filtro)
 
 
 @tarefas_bp.route('/alterar-status/<int:indice>', methods=['POST'])
@@ -165,6 +186,20 @@ def alterar_status(indice):
             tarefa_db.status = 'concluido'
         else:
             tarefa_db.status = 'pendente'
+        session.commit()
+        return redirect(url_for('tarefas.home'))
+
+
+@tarefas_bp.route('/fixar-tarefa/<int:indice>', methods=['POST'])
+@login_required
+def fixar_tarefa(indice):
+
+    with current_app.Session() as session:
+        tarefa_db = session.scalar(select(Tarefas).where(and_(Tarefas.id == indice, Tarefas.responsavel_id == current_user.id)))
+        if not tarefa_db:
+            flash("Tarefa inexistente")
+            return redirect(url_for('tarefas.home'))
+        tarefa_db.fixada = not tarefa_db.fixada
         session.commit()
         return redirect(url_for('tarefas.home'))
 
