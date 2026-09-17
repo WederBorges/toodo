@@ -3,6 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+      (function () {
+        try {
+          var tema = localStorage.getItem('toodo-theme');
+          if (!tema) {
+            tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+          }
+          document.documentElement.setAttribute('data-bs-theme', tema);
+        } catch (e) {}
+      })();
+    </script>
     <title>{% block title %}to-be list{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -34,22 +45,77 @@
         --bs-link-hover-color:      #00D8E6;
         --bs-primary:               #005A8B;
         --bs-primary-rgb:           0, 90, 139;
+
+        /* Tokens próprios usados nos templates */
+        --tx-1: #E6EDF3;
+        --tx-2: #8B949E;
+        --tx-3: #6E7681;
+        --tx-4: #484F58;
+        --bg-page: #0D1117;
+        --bg-surface: #161B22;
+        --bg-elevated: #1C2228;
+        --ov-04: rgba(255,255,255,0.04);
+        --ov-06: rgba(255,255,255,0.06);
+        --ov-07: rgba(255,255,255,0.07);
+        --ov-08: rgba(255,255,255,0.08);
+        --ov-09: rgba(255,255,255,0.09);
+        --ov-10: rgba(255,255,255,0.1);
+        --ov-14: rgba(255,255,255,0.14);
+      }
+
+      [data-bs-theme="light"] {
+        --bs-body-bg:               #F6F8FA;
+        --bs-body-color:            #1F2328;
+        --bs-secondary-color:       #57606A;
+        --bs-tertiary-color:        #6B7280;
+        --bs-card-bg:               #FFFFFF;
+        --bs-card-border-color:     rgba(31,35,40,0.09);
+        --bs-border-color:          rgba(31,35,40,0.09);
+        --bs-border-color-translucent: rgba(31,35,40,0.09);
+        --bs-secondary-bg:          #FFFFFF;
+        --bs-tertiary-bg:           #F0F2F5;
+        --bs-modal-bg:              #FFFFFF;
+        --bs-modal-header-border-color: rgba(31,35,40,0.09);
+        --bs-offcanvas-bg:          #FFFFFF;
+        --bs-dropdown-bg:           #FFFFFF;
+        --bs-dropdown-border-color: rgba(31,35,40,0.09);
+        --bs-dropdown-link-hover-bg:#F0F2F5;
+        --bs-link-color:            #005A8B;
+        --bs-link-hover-color:      #00728F;
+        --bs-primary:               #005A8B;
+        --bs-primary-rgb:           0, 90, 139;
+
+        /* Tokens próprios usados nos templates */
+        --tx-1: #1F2328;
+        --tx-2: #57606A;
+        --tx-3: #6B7280;
+        --tx-4: #9198A1;
+        --bg-page: #F6F8FA;
+        --bg-surface: #FFFFFF;
+        --bg-elevated: #F0F2F5;
+        --ov-04: rgba(31,35,40,0.04);
+        --ov-06: rgba(31,35,40,0.06);
+        --ov-07: rgba(31,35,40,0.09);
+        --ov-08: rgba(31,35,40,0.1);
+        --ov-09: rgba(31,35,40,0.12);
+        --ov-10: rgba(31,35,40,0.14);
+        --ov-14: rgba(31,35,40,0.16);
       }
 
       /* ── Form controls ───────────────────────────── */
       .form-control, .form-select {
-        background-color: rgba(255,255,255,0.04);
-        border-color: rgba(255,255,255,0.1);
-        color: #E6EDF3;
+        background-color: var(--ov-04);
+        border-color: var(--ov-10);
+        color: var(--tx-1);
       }
       .form-control:focus, .form-select:focus {
-        background-color: rgba(255,255,255,0.06);
+        background-color: var(--ov-06);
         border-color: rgba(0,192,204,0.5);
         box-shadow: 0 0 0 3px rgba(0,192,204,0.12);
-        color: #E6EDF3;
+        color: var(--tx-1);
       }
-      .form-control::placeholder { color: #484F58; }
-      .form-floating > label { color: #6E7681; }
+      .form-control::placeholder { color: var(--tx-4); }
+      .form-floating > label { color: var(--tx-3); }
 
       /* ── Botões ──────────────────────────────────── */
       .btn-primary {
@@ -64,18 +130,18 @@
       /* ── Tabela ──────────────────────────────────── */
       .table {
         --bs-table-bg: transparent;
-        --bs-table-hover-bg: rgba(255,255,255,0.03);
-        --bs-table-color: #E6EDF3;
-        --bs-table-border-color: rgba(255,255,255,0.06);
+        --bs-table-hover-bg: var(--ov-04);
+        --bs-table-color: var(--tx-1);
+        --bs-table-border-color: var(--ov-06);
       }
       .table-dark {
-        --bs-table-bg: #1C2228;
-        --bs-table-color: #8B949E;
-        --bs-table-border-color: rgba(255,255,255,0.06);
+        --bs-table-bg: var(--bg-elevated);
+        --bs-table-color: var(--tx-2);
+        --bs-table-border-color: var(--ov-06);
       }
 
       /* ── Nav pills ───────────────────────────────── */
-      .nav-pills .nav-link { color: #6E7681; }
+      .nav-pills .nav-link { color: var(--tx-3); }
       .nav-pills .nav-link.active { background-color: #005A8B; color: #fff; }
 
       /* ── Badges ──────────────────────────────────── */
@@ -83,23 +149,55 @@
       .badge-concluido { background: rgba(46,160,67,0.15); color: #2EA043; }
 
       /* ── Alertas ─────────────────────────────────── */
-      .alert-primary {
+      [data-bs-theme="dark"] .alert-primary {
         --bs-alert-bg: rgba(0,90,139,0.15);
         --bs-alert-border-color: rgba(0,90,139,0.3);
         --bs-alert-color: #7BBCDC;
       }
+      [data-bs-theme="light"] .alert-primary {
+        --bs-alert-bg: rgba(0,90,139,0.1);
+        --bs-alert-border-color: rgba(0,90,139,0.3);
+        --bs-alert-color: #0B4F73;
+      }
 
       /* ── Scrollbar ───────────────────────────────── */
       ::-webkit-scrollbar { width: 6px; height: 6px; }
-      ::-webkit-scrollbar-track { background: #0D1117; }
-      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+      ::-webkit-scrollbar-track { background: var(--bg-page); }
+      ::-webkit-scrollbar-thumb { background: var(--ov-10); border-radius: 3px; }
 
       /* ── Utilitários ─────────────────────────────── */
       .text-cyan  { color: #00C0CC; }
-      .border-subtle { border-color: rgba(255,255,255,0.07) !important; }
+      .border-subtle { border-color: var(--ov-07) !important; }
+
+      /* ── Tema claro/escuro ───────────────────────── */
+      body {
+        background: var(--bg-page);
+        color: var(--tx-1);
+        transition: background-color .15s ease, color .15s ease;
+      }
+      #theme-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1060;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid var(--ov-10);
+        background: var(--bg-surface);
+        color: var(--tx-1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+        cursor: pointer;
+        transition: filter .15s ease, background-color .15s ease;
+      }
+      #theme-toggle-btn:hover { filter: brightness(1.2); }
     </style>
   </head>
-  <body style="background:#0D1117;">
+  <body>
 
     {% block messages %}
       {% with messages = get_flashed_messages() %}
@@ -116,6 +214,10 @@
 
     {% block content %}{% endblock %}
 
+    <button type="button" id="theme-toggle-btn" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">
+      <span id="theme-toggle-icon">🌙</span>
+    </button>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
@@ -127,6 +229,22 @@
           input.name  = 'csrf_token';
           input.value = token;
           form.appendChild(input);
+        });
+
+        const root = document.documentElement;
+        const toggleBtn = document.getElementById('theme-toggle-btn');
+        const toggleIcon = document.getElementById('theme-toggle-icon');
+
+        function atualizarIcone() {
+          toggleIcon.textContent = root.getAttribute('data-bs-theme') === 'light' ? '🌙' : '☀️';
+        }
+        atualizarIcone();
+
+        toggleBtn.addEventListener('click', function () {
+          const proximo = root.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
+          root.setAttribute('data-bs-theme', proximo);
+          try { localStorage.setItem('toodo-theme', proximo); } catch (e) {}
+          atualizarIcone();
         });
       });
     </script>

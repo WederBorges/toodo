@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, url_for, redirect, flash, abort
 from datetime import datetime
+import math
 from flask import current_app
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select, and_, case, func
@@ -55,6 +56,32 @@ PRIORIDADE_RANK = case(
 
 ORDENACAO_VALIDAS = {"data", "prioridade"}
 DIRECAO_VALIDAS = {"asc", "desc"}
+
+TAREFAS_POR_PAGINA = 10
+
+
+def montar_paginas_visiveis(atual, total, janela=2):
+    """Monta a lista de páginas exibidas no paginador, com marcadores de
+    reticências (None) quando há um salto entre páginas distantes."""
+
+    if total <= 1:
+        return [1]
+
+    paginas = {1, total}
+    for pagina in range(atual - janela, atual + janela + 1):
+        if 1 <= pagina <= total:
+            paginas.add(pagina)
+
+    paginas_ordenadas = sorted(paginas)
+    resultado = []
+    anterior = None
+    for pagina in paginas_ordenadas:
+        if anterior is not None and pagina - anterior > 1:
+            resultado.append(None)
+        resultado.append(pagina)
+        anterior = pagina
+
+    return resultado
 
 
 @tarefas_bp.route('/', methods=['GET', 'POST'])
@@ -126,14 +153,25 @@ def home():
             ordenar = None
             criterio = Tarefas.status.desc()
 
+        query_base = select(Tarefas).where(and_(*condicoes))
+        total_tarefas = session.scalar(
+            select(func.count()).select_from(query_base.subquery())
+        )
+
+        total_paginas = max(1, math.ceil(total_tarefas / TAREFAS_POR_PAGINA))
+        pagina_atual = request.args.get("pagina", 1, type=int) or 1
+        pagina_atual = min(max(pagina_atual, 1), total_paginas)
+
         query = (select(Tarefas)
                  .options(selectinload(Tarefas.etapas))
                  .where(and_(*condicoes))
-                 .order_by(Tarefas.fixada.desc(), criterio))
+                 .order_by(Tarefas.fixada.desc(), criterio)
+                 .limit(TAREFAS_POR_PAGINA)
+                 .offset((pagina_atual - 1) * TAREFAS_POR_PAGINA))
 
         database = session.scalars(query).all()
-        total_tarefas = len(database)
-        percent = concluida/total_tarefas if database else 0
+        percent = concluida/total_tarefas if total_tarefas else 0
+        paginas_visiveis = montar_paginas_visiveis(pagina_atual, total_paginas)
         agora = datetime.now()
 
         if request.method == 'POST':
@@ -178,7 +216,11 @@ def home():
                             ordenar_atual=ordenar,
                             direcao_atual=direcao,
                             prioridade_atual=prioridade_filtro,
-                            fixadas_atual=fixadas_filtro)
+                            fixadas_atual=fixadas_filtro,
+                            pagina_atual=pagina_atual,
+                            total_paginas=total_paginas,
+                            paginas_visiveis=paginas_visiveis,
+                            tarefas_por_pagina=TAREFAS_POR_PAGINA)
 
 
 @tarefas_bp.route('/alterar-status/<int:indice>', methods=['POST'])
