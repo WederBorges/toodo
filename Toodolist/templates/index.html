@@ -303,13 +303,7 @@ endblock %} {% block content %} {% include 'navbar.html' %}
             {% for chave, label in prioridade_choices %}
             <option
               value="{{ chave }}"
-              {%
-              if
-              chave=""
-              ="media"
-              %}selected{%
-              endif
-              %}
+              {% if chave == "media" %}selected{% endif %}
             >
               {{ label }}
             </option>
@@ -462,55 +456,27 @@ endblock %} {% block content %} {% include 'navbar.html' %}
     <span class="pill-label">Status</span>
     <a
       href="{{ filter_url(remove=['filtro']) }}"
-      {%
-      if
-      filtro_atual=""
-      ="all"
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "all" %}class="f-all"{% endif %}
     >
       Todas <span class="pill-count">{{ total_geral }}</span>
     </a>
     <a
       href="{{ filter_url(filtro='pendentes') }}"
-      {%
-      if
-      filtro_atual=""
-      ="pendentes"
-      %}class="f-todo"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "pendentes" %}class="f-todo"{% endif %}
     >
       Pendentes
       <span class="pill-count">{{ status_counts.get('pendente', 0) }}</span>
     </a>
     <a
       href="{{ filter_url(filtro='em_andamento') }}"
-      {%
-      if
-      filtro_atual=""
-      ="em_andamento"
-      %}class="f-progress"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "em_andamento" %}class="f-progress"{% endif %}
     >
       Em andamento
       <span class="pill-count">{{ status_counts.get('em_andamento', 0) }}</span>
     </a>
     <a
       href="{{ filter_url(filtro='aguardando_retorno') }}"
-      {%
-      if
-      filtro_atual=""
-      ="aguardando_retorno"
-      %}class="f-waiting"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "aguardando_retorno" %}class="f-waiting"{% endif %}
     >
       Aguardando retorno
       <span class="pill-count"
@@ -519,28 +485,14 @@ endblock %} {% block content %} {% include 'navbar.html' %}
     </a>
     <a
       href="{{ filter_url(filtro='concluidas') }}"
-      {%
-      if
-      filtro_atual=""
-      ="concluidas"
-      %}class="f-done"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "concluidas" %}class="f-done"{% endif %}
     >
       Concluídas
       <span class="pill-count">{{ status_counts.get('concluido', 0) }}</span>
     </a>
     <a
       href="{{ filter_url(filtro='canceladas') }}"
-      {%
-      if
-      filtro_atual=""
-      ="canceladas"
-      %}class="f-cancelled"
-      {%
-      endif
-      %}
+      {% if filtro_atual == "canceladas" %}class="f-cancelled"{% endif %}
     >
       Canceladas
       <span class="pill-count">{{ status_counts.get('cancelado', 0) }}</span>
@@ -552,29 +504,16 @@ endblock %} {% block content %} {% include 'navbar.html' %}
     <span class="pill-label">Prioridade</span>
     <a
       href="{{ filter_url(remove=['prioridade']) }}"
-      {%
-      if
-      not
-      prioridade_atual
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if not prioridade_atual %}class="f-all"{% endif %}
     >
       Todas
     </a>
     {% for chave, label in prioridade_choices %}
     <a
       href="{{ filter_url(prioridade=chave) }}"
-      {%
-      if
-      prioridade_atual=""
-      ="chave"
-      %}class="f-cancelled"
+      {% if prioridade_atual == chave %}class="f-cancelled"
       style="background:{{ prioridade_badges[chave].bg }}; color:{{ prioridade_badges[chave].color }}; border-color:{{ prioridade_badges[chave].color }}66;"
-      {%
-      endif
-      %}
+      {% endif %}
     >
       {{ label }}
     </a>
@@ -594,65 +533,25 @@ endblock %} {% block content %} {% include 'navbar.html' %}
     <span class="pill-label">Ordenar</span>
     <a
       href="{{ filter_url(ordenar='data', direcao='desc') }}"
-      {%
-      if
-      ordenar_atual=""
-      ="data"
-      and
-      direcao_atual=""
-      ="desc"
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if ordenar_atual == "data" and direcao_atual == "desc" %}class="f-all"{% endif %}
     >
       Data ↓ (mais recente)
     </a>
     <a
       href="{{ filter_url(ordenar='data', direcao='asc') }}"
-      {%
-      if
-      ordenar_atual=""
-      ="data"
-      and
-      direcao_atual=""
-      ="asc"
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if ordenar_atual == "data" and direcao_atual == "asc" %}class="f-all"{% endif %}
     >
       Data ↑ (mais antiga)
     </a>
     <a
       href="{{ filter_url(ordenar='prioridade', direcao='desc') }}"
-      {%
-      if
-      ordenar_atual=""
-      ="prioridade"
-      and
-      direcao_atual=""
-      ="desc"
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if ordenar_atual == "prioridade" and direcao_atual == "desc" %}class="f-all"{% endif %}
     >
       Prioridade ↓ (alta → baixa)
     </a>
     <a
       href="{{ filter_url(ordenar='prioridade', direcao='asc') }}"
-      {%
-      if
-      ordenar_atual=""
-      ="prioridade"
-      and
-      direcao_atual=""
-      ="asc"
-      %}class="f-all"
-      {%
-      endif
-      %}
+      {% if ordenar_atual == "prioridade" and direcao_atual == "asc" %}class="f-all"{% endif %}
     >
       Prioridade ↑ (baixa → alta)
     </a>
@@ -971,13 +870,7 @@ endblock %} {% block content %} {% include 'navbar.html' %}
                         {% for chave, label in status_choices %}
                         <option
                           value="{{ chave }}"
-                          {%
-                          if
-                          tarefa.status=""
-                          ="chave"
-                          %}selected{%
-                          endif
-                          %}
+                          {% if tarefa.status == chave %}selected{% endif %}
                         >
                           {{ label }}
                         </option>
@@ -1001,13 +894,7 @@ endblock %} {% block content %} {% include 'navbar.html' %}
                         {% for chave, label in prioridade_choices %}
                         <option
                           value="{{ chave }}"
-                          {%
-                          if
-                          tarefa.prioridade=""
-                          ="chave"
-                          %}selected{%
-                          endif
-                          %}
+                          {% if tarefa.prioridade == chave %}selected{% endif %}
                         >
                           {{ label }}
                         </option>
