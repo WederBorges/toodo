@@ -464,8 +464,7 @@ endblock %} {% block content %} {% include 'navbar.html' %}
       href="{{ filter_url(filtro='pendentes') }}"
       {% if filtro_atual == "pendentes" %}class="f-todo"{% endif %}
     >
-      Pendentes
-      <span class="pill-count">{{ status_counts.get('pendente', 0) }}</span>
+      Pendentes <span class="pill-count">{{ status_counts.get('pendente', 0) }}</span>
     </a>
     <a
       href="{{ filter_url(filtro='em_andamento') }}"

@@ -119,25 +119,24 @@ def home():
         if fixadas_filtro:
             condicoes.append(Tarefas.fixada.is_(True))
 
-        ##### Contadores #####
-        pendente = len(session.scalars(
-            select(Tarefas)
-            .where(and_(
-                Tarefas.status.notin_(["concluido", "cancelado"]),
-                Tarefas.responsavel_id == current_user.id))).all())
+        def contar(*condicoes_extra):
+            """Conta tarefas do usuário respeitando os filtros ativos
+            (busca, status, prioridade, fixadas) mais condições extras."""
+            return session.scalar(
+                select(func.count()).select_from(
+                    select(Tarefas).where(and_(*condicoes, *condicoes_extra)).subquery()
+                )
+            )
 
-        concluida = len(session.scalars(
-            select(Tarefas)
-            .where(and_(
-                Tarefas.status=="concluido",
-                Tarefas.responsavel_id == current_user.id))).all())
+        ##### Contadores (respeitam os filtros ativos, para bater com a
+        ##### lista e o "Total de tarefas" exibidos) #####
+        pendente = contar(Tarefas.status.notin_(["concluido", "cancelado"]))
+        concluida = contar(Tarefas.status == "concluido")
+        fixadas_total = contar(Tarefas.fixada.is_(True))
 
-        fixadas_total = len(session.scalars(
-            select(Tarefas)
-            .where(and_(
-                Tarefas.fixada.is_(True),
-                Tarefas.responsavel_id == current_user.id))).all())
-
+        ##### Contagem por status sempre global: alimenta os badges dos
+        ##### pills de filtro, que devem mostrar o total de cada categoria
+        ##### independentemente do filtro atualmente selecionado #####
         status_counts = dict(session.execute(
             select(Tarefas.status, func.count())
             .where(Tarefas.responsavel_id == current_user.id)
@@ -153,10 +152,7 @@ def home():
             ordenar = None
             criterio = Tarefas.status.desc()
 
-        query_base = select(Tarefas).where(and_(*condicoes))
-        total_tarefas = session.scalar(
-            select(func.count()).select_from(query_base.subquery())
-        )
+        total_tarefas = contar()
 
         total_paginas = max(1, math.ceil(total_tarefas / TAREFAS_POR_PAGINA))
         pagina_atual = request.args.get("pagina", 1, type=int) or 1
