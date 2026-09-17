@@ -17,4 +17,4 @@ ENV PATH="/usr/local/app/.venv/bin:${PATH}"
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "exec gunicorn run:app --bind 0.0.0.0:${PORT:-5000}"]
+CMD ["sh", "-c", "alembic upgrade head && exec gunicorn run:app --bind 0.0.0.0:${PORT:-5000}"]
